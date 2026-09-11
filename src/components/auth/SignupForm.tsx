@@ -37,8 +37,9 @@ export function SignupForm() {
           type="text"
           required
           autoComplete="username"
-          placeholder="cth: budisantoso"
-          pattern="[a-z0-9_.]+"
+          placeholder="cth: budisantoso123"
+          pattern="[A-Za-z0-9]+"
+          title="Hanya huruf dan angka, tanpa spasi atau simbol"
           className="rounded-xl border border-jj-border bg-white px-3.5 py-2.5 text-sm outline-none focus:border-jj-orange"
         />
         {fieldErrors.username && (

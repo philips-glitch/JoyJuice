@@ -10,7 +10,8 @@ export type AuthFormState =
   | { error?: string; fieldErrors?: Record<string, string> }
   | undefined;
 
-const USERNAME_REGEX = /^[a-z0-9_.]+$/;
+// Free alphanumeric format: any mix of letters and numbers, no symbols or spaces.
+const USERNAME_REGEX = /^[a-zA-Z0-9]+$/;
 
 const signupSchema = z.object({
   name: z.string().trim().min(2, "Nama minimal 2 karakter"),
@@ -20,7 +21,7 @@ const signupSchema = z.object({
     .toLowerCase()
     .min(3, "Username minimal 3 karakter")
     .max(20, "Username maksimal 20 karakter")
-    .regex(USERNAME_REGEX, "Hanya huruf kecil, angka, titik, dan underscore"),
+    .regex(USERNAME_REGEX, "Hanya huruf dan angka, tanpa spasi atau simbol"),
   email: z.string().trim().toLowerCase().email("Format email tidak valid"),
   phone: z
     .string()
