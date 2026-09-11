@@ -4,15 +4,20 @@ A cold-pressed juice ordering app with a real loyalty points program: browse the
 and add drinks to your cart, check out through a 3-step flow (cart → shipping → payment & points),
 and track/redeem points from a Loyalty Portal and Rewards catalog.
 
-Built with **Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + Prisma/SQLite + Auth.js
+Built with **Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + Prisma/Postgres + Auth.js
 (NextAuth v5, Credentials provider)**.
 
 ## Getting started
 
+The app needs a real Postgres database (it originally used local SQLite, but that doesn't survive
+on serverless hosts like Vercel — see [Deploying to Vercel](#deploying-to-vercel) below for the
+easiest way to get one).
+
 ```bash
 npm install
-npx prisma migrate dev   # creates prisma/dev.db and applies the schema
-npm run db:seed          # seeds products, reward catalog, and a demo account
+# put a real Postgres connection string + AUTH_SECRET in .env (see .env.example)
+npx prisma migrate deploy   # applies the schema to your database
+npm run db:seed             # seeds products, reward catalog, and demo accounts
 npm run dev
 ```
 
@@ -25,8 +30,33 @@ use one of the seeded demo accounts (login accepts **username or email**):
 | `admin` | `123456` | Admin | `role: ADMIN` in the database — no admin-only UI is wired up yet (see below) |
 | `budisantoso` (or `budi.santoso@email.com`) | `password123` | Customer | 450 points, Gold tier — matches the original mockups |
 
-`.env` is already created for local dev (SQLite file + a generated `AUTH_SECRET`). See
-`.env.example` if you need to recreate it.
+`.env` is gitignored on purpose (it holds real secrets) — see `.env.example` for the two variables
+you need: `DATABASE_URL` and `AUTH_SECRET`.
+
+## Deploying to Vercel
+
+1. **Import the repo** into Vercel as a new project.
+2. **Add a database** — in the project's **Storage** tab, add **Prisma Postgres** from the Vercel
+   Marketplace. This automatically sets `DATABASE_URL` for Production, Preview, and Development.
+3. **Set `AUTH_SECRET`** — Project Settings → Environment Variables → add `AUTH_SECRET` for all
+   three environments. Generate one with:
+   ```bash
+   node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+   ```
+   This step is what was missing when you saw *"There was a problem with the server
+   configuration"* on login — that's Auth.js's generic error for a missing/invalid `AUTH_SECRET`.
+4. **Redeploy.** The `build` script (`prisma migrate deploy && next build`) applies the schema to
+   your new database automatically on every deploy — no manual migration step needed.
+5. **Seed the production database once** — pull the env vars locally and run the seed script
+   against them:
+   ```bash
+   npx vercel link
+   npx vercel env pull .env
+   npm run db:seed
+   ```
+
+For local development against the same database, run `npx vercel env pull .env` any time to sync
+your local `.env` with what's configured in Vercel.
 
 ## Pages
 
@@ -84,8 +114,6 @@ src/components/             UI split by feature (menu, checkout, loyalty, reward
 ## Known limitations / good next steps
 
 - No real payment processing (see above).
-- SQLite is great for local dev but is a single file — move to Postgres before deploying with
-  multiple instances.
 - `npm audit` reports a high-severity advisory in `deepmerge-ts` (a transitive dependency of the
   Prisma CLI's config loader) — it's a build-time-only dependency (stack-exhaustion DoS), not
   something exposed to end users of the running app, but worth revisiting when Prisma ships a fix.
