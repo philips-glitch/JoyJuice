@@ -1,0 +1,180 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Tier {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+}
+
+enum PointsTxType {
+  EARN
+  REDEEM
+  BONUS
+  ADJUST
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAID
+  PREPARING
+  ON_DELIVERY
+  COMPLETED
+  CANCELLED
+}
+
+enum DeliveryMethod {
+  INSTANT_COURIER
+  PICKUP
+}
+
+enum PaymentMethod {
+  QRIS
+  VIRTUAL_ACCOUNT
+  MANUAL_TRANSFER
+}
+
+model User {
+  id             String    @id @default(cuid())
+  name           String
+  email          String    @unique
+  passwordHash   String
+  phone          String?
+  points         Int       @default(0)
+  lifetimePoints Int       @default(0)
+  tier           Tier      @default(BRONZE)
+  bonusClaimed   Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  cartItems         CartItem[]
+  orders            Order[]
+  pointsTransactions PointsTransaction[]
+  rewardRedemptions RewardRedemption[]
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  category    String
+  description String
+  ingredients String
+  image       String
+  basePrice   Int
+  calories    Int
+  volumeMl    Int
+  rating      Float    @default(4.8)
+  tag         String?
+  pointsBadge Int
+  sizes       String
+  toppings    String
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+}
+
+model CartItem {
+  id            String   @id @default(cuid())
+  userId        String
+  productId     String
+  quantity      Int      @default(1)
+  size          String
+  iceLevel      String
+  sweetness     String
+  toppings      String
+  note          String?
+  unitPrice     Int
+  createdAt     DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id               String         @id @default(cuid())
+  userId           String
+  status           OrderStatus    @default(PENDING_PAYMENT)
+  deliveryMethod   DeliveryMethod
+  deliveryOption   String
+  shippingFee      Int
+  address          String?
+  whatsapp         String
+  driverNote       String?
+  paymentMethod    PaymentMethod
+  subtotal         Int
+  memberDiscount   Int
+  pointsRedeemed   Int            @default(0)
+  pointsDiscount   Int            @default(0)
+  total            Int
+  pointsEarned     Int
+  createdAt        DateTime       @default(now())
+
+  user  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items OrderItem[]
+  pointsTransactions PointsTransaction[]
+}
+
+model OrderItem {
+  id         String @id @default(cuid())
+  orderId    String
+  productId  String
+  name       String
+  image      String
+  quantity   Int
+  unitPrice  Int
+  size       String
+  iceLevel   String
+  sweetness  String
+  toppings   String
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model PointsTransaction {
+  id            String       @id @default(cuid())
+  userId        String
+  orderId       String?
+  type          PointsTxType
+  amount        Int
+  balanceAfter  Int
+  description   String
+  createdAt     DateTime     @default(now())
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order Order? @relation(fields: [orderId], references: [id], onDelete: SetNull)
+}
+
+model RewardItem {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  image       String
+  pointsCost  Int
+  category    String
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  redemptions RewardRedemption[]
+}
+
+model RewardRedemption {
+  id           String   @id @default(cuid())
+  userId       String
+  rewardItemId String
+  pointsSpent  Int
+  createdAt    DateTime @default(now())
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rewardItem RewardItem @relation(fields: [rewardItemId], references: [id], onDelete: Cascade)
+}

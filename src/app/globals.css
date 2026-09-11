@@ -1,26 +1,48 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --jj-bg: #fff8f0;
+  --jj-surface: #ffffff;
+  --jj-text: #201a14;
+  --jj-muted: #7a6f63;
+  --jj-border: #f0e2d0;
+  --jj-orange: #f2711c;
+  --jj-orange-dark: #d9560a;
+  --jj-pink: #e0166b;
+  --jj-gold: #b8790a;
+  --jj-gold-bg: #fdf1d9;
+  --jj-green: #1f8a4c;
+  --jj-green-bg: #e9f7ee;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-jj-bg: var(--jj-bg);
+  --color-jj-surface: var(--jj-surface);
+  --color-jj-text: var(--jj-text);
+  --color-jj-muted: var(--jj-muted);
+  --color-jj-border: var(--jj-border);
+  --color-jj-orange: var(--jj-orange);
+  --color-jj-orange-dark: var(--jj-orange-dark);
+  --color-jj-pink: var(--jj-pink);
+  --color-jj-gold: var(--jj-gold);
+  --color-jj-gold-bg: var(--jj-gold-bg);
+  --color-jj-green: var(--jj-green);
+  --color-jj-green-bg: var(--jj-green-bg);
+  --font-sans: var(--font-sans);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--jj-bg);
+  color: var(--jj-text);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+.jj-btn-primary {
+  background: linear-gradient(90deg, var(--jj-orange) 0%, var(--jj-pink) 100%);
+}
+
+.jj-card {
+  background: var(--jj-surface);
+  border: 1px solid var(--jj-border);
+  border-radius: 1rem;
 }
