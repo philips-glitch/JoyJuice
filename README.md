@@ -17,11 +17,13 @@ npm run dev
 ```
 
 Open http://localhost:3000. You'll be redirected to `/login` — either sign up a new account or
-use the seeded demo account:
+use one of the seeded demo accounts (login accepts **username or email**):
 
-- **Email:** `budi.santoso@email.com`
-- **Password:** `password123`
-- Starts with 450 points and Gold tier, matching the original mockups.
+| Username | Password | Role | Notes |
+|---|---|---|---|
+| `customer` | `123456` | Customer | Fresh account, 0 points, Bronze tier |
+| `admin` | `123456` | Admin | `role: ADMIN` in the database — no admin-only UI is wired up yet (see below) |
+| `budisantoso` (or `budi.santoso@email.com`) | `password123` | Customer | 450 points, Gold tier — matches the original mockups |
 
 `.env` is already created for local dev (SQLite file + a generated `AUTH_SECRET`). See
 `.env.example` if you need to recreate it.
@@ -55,6 +57,10 @@ reasonable, easy-to-retune choices — see [`src/lib/tiers.ts`](src/lib/tiers.ts
   `tiers.ts`) if you'd rather allow partial/variable redemption later.
 - **PPN 11% & packaging** are noted as already included in listed prices (as the mockup's footnote
   says), not added as a separate line item.
+- **Accounts have a `username` (required, unique) and an optional `email`.** Login accepts either.
+  Every `User` also has a `role` (`CUSTOMER` | `ADMIN`) in the schema; the seeded `admin` account is
+  flagged `ADMIN` but there's no admin-only page or permission check using it yet — that's ready
+  for whenever you want an actual admin panel (e.g. Admin Orders) built on top of it.
 - **Payment methods** (QRIS / Virtual Account / Manual Transfer) are UI-only simulations — placing
   an order marks it `PAID` immediately. No real payment gateway is wired up (that's a deliberate
   scope decision; integrating Midtrans/Xendit/etc. would be the natural next step).

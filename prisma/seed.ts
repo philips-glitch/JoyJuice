@@ -175,25 +175,64 @@ async function main() {
     }
   }
 
-  console.log("Seeding demo account (Budi Santoso)...");
-  const demoEmail = "budi.santoso@email.com";
-  const existingDemo = await prisma.user.findUnique({ where: { email: demoEmail } });
-  if (!existingDemo) {
-    const passwordHash = await bcrypt.hash("password123", 10);
+  console.log("Seeding demo accounts...");
+  const demoAccounts = [
+    {
+      username: "budisantoso",
+      name: "Budi Santoso",
+      email: "budi.santoso@email.com",
+      phone: "+6281288992345",
+      password: "password123",
+      role: "CUSTOMER" as const,
+      points: 450,
+      lifetimePoints: 450,
+      tier: "GOLD" as const,
+    },
+    {
+      username: "customer",
+      name: "Customer Demo",
+      email: null,
+      phone: null,
+      password: "123456",
+      role: "CUSTOMER" as const,
+      points: 0,
+      lifetimePoints: 0,
+      tier: "BRONZE" as const,
+    },
+    {
+      username: "admin",
+      name: "Admin Joy & Juice",
+      email: null,
+      phone: null,
+      password: "123456",
+      role: "ADMIN" as const,
+      points: 0,
+      lifetimePoints: 0,
+      tier: "BRONZE" as const,
+    },
+  ];
+
+  for (const acc of demoAccounts) {
+    const existing = await prisma.user.findUnique({ where: { username: acc.username } });
+    if (existing) {
+      console.log(`  -> ${acc.username} already exists, skipped`);
+      continue;
+    }
+    const passwordHash = await bcrypt.hash(acc.password, 10);
     await prisma.user.create({
       data: {
-        name: "Budi Santoso",
-        email: demoEmail,
-        phone: "+6281288992345",
+        name: acc.name,
+        username: acc.username,
+        email: acc.email,
+        phone: acc.phone,
         passwordHash,
-        points: 450,
-        lifetimePoints: 450,
-        tier: "GOLD",
+        role: acc.role,
+        points: acc.points,
+        lifetimePoints: acc.lifetimePoints,
+        tier: acc.tier,
       },
     });
-    console.log("  -> demo login: budi.santoso@email.com / password123");
-  } else {
-    console.log("  -> demo account already exists, skipped");
+    console.log(`  -> login: ${acc.username} / ${acc.password} (${acc.role})`);
   }
 
   console.log("Seed complete.");

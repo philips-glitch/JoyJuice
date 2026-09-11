@@ -10,9 +10,18 @@ export type AuthFormState =
   | { error?: string; fieldErrors?: Record<string, string> }
   | undefined;
 
+const USERNAME_REGEX = /^[a-z0-9_.]+$/;
+
 const signupSchema = z.object({
   name: z.string().trim().min(2, "Nama minimal 2 karakter"),
-  email: z.string().trim().email("Format email tidak valid"),
+  username: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .min(3, "Username minimal 3 karakter")
+    .max(20, "Username maksimal 20 karakter")
+    .regex(USERNAME_REGEX, "Hanya huruf kecil, angka, titik, dan underscore"),
+  email: z.string().trim().toLowerCase().email("Format email tidak valid"),
   phone: z
     .string()
     .trim()
@@ -27,6 +36,7 @@ export async function signupAction(
 ): Promise<AuthFormState> {
   const parsed = signupSchema.safeParse({
     name: formData.get("name"),
+    username: formData.get("username"),
     email: formData.get("email"),
     phone: formData.get("phone"),
     password: formData.get("password"),
@@ -40,22 +50,28 @@ export async function signupAction(
     return { fieldErrors };
   }
 
-  const { name, email, phone, password } = parsed.data;
-  const normalizedEmail = email.toLowerCase();
+  const { name, username, email, phone, password } = parsed.data;
 
-  const existing = await prisma.user.findUnique({ where: { email: normalizedEmail } });
+  const existing = await prisma.user.findFirst({
+    where: { OR: [{ username }, { email }] },
+  });
   if (existing) {
-    return { error: "Email ini sudah terdaftar. Silakan login." };
+    return {
+      error:
+        existing.username === username
+          ? "Username ini sudah dipakai. Silakan pilih yang lain."
+          : "Email ini sudah terdaftar. Silakan login.",
+    };
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
   await prisma.user.create({
-    data: { name, email: normalizedEmail, phone, passwordHash },
+    data: { name, username, email, phone, passwordHash },
   });
 
   try {
     await signIn("credentials", {
-      email: normalizedEmail,
+      identifier: username,
       password,
       redirectTo: "/menu",
     });
@@ -71,22 +87,27 @@ export async function loginAction(
   _prevState: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
-  const email = formData.get("email");
+  const identifier = formData.get("identifier");
   const password = formData.get("password");
 
-  if (typeof email !== "string" || typeof password !== "string" || !email || !password) {
-    return { error: "Email dan password wajib diisi." };
+  if (
+    typeof identifier !== "string" ||
+    typeof password !== "string" ||
+    !identifier ||
+    !password
+  ) {
+    return { error: "Username/email dan password wajib diisi." };
   }
 
   try {
     await signIn("credentials", {
-      email: email.trim().toLowerCase(),
+      identifier: identifier.trim().toLowerCase(),
       password,
       redirectTo: "/menu",
     });
   } catch (err) {
     if (err instanceof AuthError) {
-      return { error: "Email atau password salah." };
+      return { error: "Username/email atau password salah." };
     }
     throw err; // NEXT_REDIRECT — let Next.js handle the redirect
   }

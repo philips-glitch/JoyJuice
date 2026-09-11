@@ -41,12 +41,19 @@ enum PaymentMethod {
   MANUAL_TRANSFER
 }
 
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
 model User {
   id             String    @id @default(cuid())
   name           String
-  email          String    @unique
+  username       String    @unique
+  email          String?   @unique
   passwordHash   String
   phone          String?
+  role           Role      @default(CUSTOMER)
   points         Int       @default(0)
   lifetimePoints Int       @default(0)
   tier           Tier      @default(BRONZE)

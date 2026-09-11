@@ -18,13 +18,13 @@ export function LoginForm() {
       )}
 
       <label className="flex flex-col gap-1 text-sm font-medium text-jj-text">
-        Email
+        Username atau Email
         <input
-          name="email"
-          type="email"
+          name="identifier"
+          type="text"
           required
-          autoComplete="email"
-          placeholder="nama@email.com"
+          autoComplete="username"
+          placeholder="username atau nama@email.com"
           className="rounded-xl border border-jj-border bg-white px-3.5 py-2.5 text-sm outline-none focus:border-jj-orange"
         />
       </label>
@@ -56,9 +56,19 @@ export function LoginForm() {
         </Link>
       </p>
 
-      <div className="mt-1 rounded-xl bg-jj-gold-bg px-3.5 py-2.5 text-xs text-jj-gold">
-        Demo: <span className="font-semibold">budi.santoso@email.com</span> /{" "}
-        <span className="font-semibold">password123</span>
+      <div className="mt-1 flex flex-col gap-1 rounded-xl bg-jj-gold-bg px-3.5 py-2.5 text-xs text-jj-gold">
+        <span>
+          Demo customer: <span className="font-semibold">customer</span> /{" "}
+          <span className="font-semibold">123456</span>
+        </span>
+        <span>
+          Demo admin: <span className="font-semibold">admin</span> /{" "}
+          <span className="font-semibold">123456</span>
+        </span>
+        <span>
+          Demo Gold member: <span className="font-semibold">budisantoso</span> /{" "}
+          <span className="font-semibold">password123</span>
+        </span>
       </div>
     </form>
   );

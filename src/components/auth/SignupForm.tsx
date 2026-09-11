@@ -31,6 +31,22 @@ export function SignupForm() {
       </label>
 
       <label className="flex flex-col gap-1 text-sm font-medium text-jj-text">
+        Username
+        <input
+          name="username"
+          type="text"
+          required
+          autoComplete="username"
+          placeholder="cth: budisantoso"
+          pattern="[a-z0-9_.]+"
+          className="rounded-xl border border-jj-border bg-white px-3.5 py-2.5 text-sm outline-none focus:border-jj-orange"
+        />
+        {fieldErrors.username && (
+          <span className="text-xs text-red-600">{fieldErrors.username}</span>
+        )}
+      </label>
+
+      <label className="flex flex-col gap-1 text-sm font-medium text-jj-text">
         Email
         <input
           name="email"
