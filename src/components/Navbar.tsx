@@ -44,9 +44,20 @@ export async function Navbar() {
           </div>
         </div>
 
-        <NavLinks isAdmin={user?.role === "ADMIN"} />
+        <NavLinks />
 
         <div className="flex items-center gap-space-sm sm:gap-space-md">
+          {user?.role === "ADMIN" && (
+            <Link
+              href="/admin/orders"
+              className="hidden items-center gap-1.5 rounded-lg bg-inverse-surface px-3 py-1.5 font-label-md text-label-md text-inverse-on-surface transition-colors hover:opacity-90 sm:flex"
+              title="Buka Admin Dashboard (area terpisah dari storefront)"
+            >
+              <Icon name="admin_panel_settings" className="!text-base" />
+              Admin
+            </Link>
+          )}
+
           {user && (
             <div className="hidden items-center gap-1.5 rounded-full border border-amber-300 bg-amber-100 px-3 py-1.5 font-label-md text-label-md text-amber-900 sm:flex">
               <Icon name="stars" filled className="!text-sm text-amber-600" />

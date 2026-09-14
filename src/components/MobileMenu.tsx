@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Icon } from "@/components/Icon";
 import { logoutAction } from "@/app/actions/auth-actions";
 
-const BASE_LINKS = [
+const LINKS = [
   { href: "/menu", label: "Menu" },
   { href: "/loyalty", label: "Loyalty Portal" },
   { href: "/rewards", label: "Rewards" },
@@ -25,7 +25,6 @@ export function MobileMenu({
   points: number;
 }) {
   const [open, setOpen] = useState(false);
-  const links = isAdmin ? [...BASE_LINKS, { href: "/admin/orders", label: "Admin Orders" }] : BASE_LINKS;
 
   return (
     <div className="md:hidden">
@@ -47,7 +46,7 @@ export function MobileMenu({
                 <span className="font-bold">Points: {points.toLocaleString("id-ID")} pts</span>
               </div>
             )}
-            {links.map((link) => (
+            {LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -57,6 +56,23 @@ export function MobileMenu({
                 {link.label}
               </Link>
             ))}
+
+            {/* Separate section — the admin dashboard is its own area,
+                not part of the storefront nav list above. */}
+            {isAdmin && (
+              <>
+                <div className="my-1 border-t border-outline-variant/60" />
+                <Link
+                  href="/admin/orders"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2 rounded-lg bg-inverse-surface px-3 py-2 font-label-lg text-label-lg text-inverse-on-surface"
+                >
+                  <Icon name="admin_panel_settings" className="!text-base" />
+                  Admin Dashboard
+                </Link>
+              </>
+            )}
+
             {isLoggedIn ? (
               <form action={logoutAction}>
                 <button

@@ -1,11 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Navbar } from "@/components/Navbar";
-import { getCurrentUser } from "@/lib/current-user";
 
-export default async function ShopLayout({ children }: { children: React.ReactNode }) {
-  const user = await getCurrentUser();
-
+export default function ShopLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-1 flex-col">
       <Navbar />
@@ -31,14 +28,6 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
             <Link href="/rewards" className="text-on-surface-variant transition-colors hover:text-primary">
               Katalog Hadiah
             </Link>
-            {user?.role === "ADMIN" && (
-              <Link
-                href="/admin/orders"
-                className="text-on-surface-variant transition-colors hover:text-primary"
-              >
-                Admin Portal
-              </Link>
-            )}
           </div>
         </div>
       </footer>

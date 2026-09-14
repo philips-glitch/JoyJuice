@@ -3,19 +3,22 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const BASE_LINKS = [
+const LINKS = [
   { href: "/menu", label: "Menu" },
   { href: "/loyalty", label: "Loyalty Portal" },
   { href: "/rewards", label: "Rewards" },
 ];
 
-export function NavLinks({ isAdmin = false }: { isAdmin?: boolean }) {
+// Note: Admin Dashboard is intentionally not in this list — it's a
+// separate area (src/app/admin) with its own layout, reached via the
+// distinct "Admin" entry point in Navbar/MobileMenu, not mixed into the
+// customer storefront's main nav.
+export function NavLinks() {
   const pathname = usePathname();
-  const links = isAdmin ? [...BASE_LINKS, { href: "/admin/orders", label: "Admin Orders" }] : BASE_LINKS;
 
   return (
     <nav className="hidden items-center space-x-6 md:flex">
-      {links.map((link) => {
+      {LINKS.map((link) => {
         const active = pathname?.startsWith(link.href);
         return (
           <Link

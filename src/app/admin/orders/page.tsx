@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-import { requireCurrentUser } from "@/lib/current-user";
 import { prisma } from "@/lib/prisma";
 import { formatRupiah } from "@/lib/pricing";
 import { Icon } from "@/components/Icon";
@@ -23,11 +21,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export default async function AdminOrdersPage() {
-  const user = await requireCurrentUser();
-  if (user.role !== "ADMIN") {
-    redirect("/menu");
-  }
-
+  // Role is already gated by src/app/admin/layout.tsx.
   const orders = await prisma.order.findMany({
     orderBy: { createdAt: "desc" },
     take: 100,
@@ -41,7 +35,7 @@ export default async function AdminOrdersPage() {
     <div className="flex flex-col gap-space-lg">
       <div>
         <h1 className="flex items-center gap-2 font-headline-md text-headline-md text-on-surface">
-          <Icon name="receipt_long" className="text-primary" /> Admin Orders
+          <Icon name="receipt_long" className="text-primary" /> Orders
         </h1>
         <p className="font-body-sm text-body-sm text-on-surface-variant">
           Semua pesanan yang masuk, terbaru di atas.
