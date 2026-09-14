@@ -25,11 +25,11 @@ export default async function MenuPage() {
               <span>100% Organik &amp; Cold-Pressed Segar Tiap Subuh</span>
             </div>
             <h1 className="font-display-lg-mobile text-display-lg-mobile text-on-background sm:font-display-lg sm:text-display-lg">
-              100% Jus Murni Cold-Pressed &amp; Dapatkan Poin Setiap Tegukan!
+              Kesegaran Buah Pilihan dalam Setiap Botol!
             </h1>
             <p className="max-w-2xl font-body-lg text-body-lg text-on-surface-variant">
-              Dibuat dari hasil panen lokal pilihan tanpa pemanis buatan, tanpa pengawet, dan tanpa
-              setetes air pun. Nutrisi hidup murni langsung ke botol kaca Anda.
+              Nikmati perpaduan buah pilihan dengan rasa yang segar, nikmat, dan menyegarkan kapan
+              saja.
             </p>
 
             <div className="flex items-center gap-3 rounded-lg border border-amber-300/80 bg-amber-50 p-3 text-amber-950">
