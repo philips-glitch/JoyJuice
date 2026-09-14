@@ -8,6 +8,7 @@ export const ADMIN_NAV_ITEMS = [
   { href: "/admin", label: "Dashboard", icon: "dashboard", exact: true },
   { href: "/admin/orders", label: "Orders", icon: "receipt_long" },
   { href: "/admin/products", label: "Products", icon: "local_drink" },
+  { href: "/admin/customers", label: "Customers", icon: "group" },
 ];
 
 export function AdminNav({ variant = "sidebar" }: { variant?: "sidebar" | "mobile" }) {

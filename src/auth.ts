@@ -27,6 +27,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const valid = await bcrypt.compare(password, user.passwordHash);
         if (!valid) return null;
 
+        // Suspended accounts fail the same way as a wrong password —
+        // deliberately not revealing account status to an unauthenticated
+        // login attempt.
+        if (user.suspended) return null;
+
         return { id: user.id, name: user.name, email: user.email };
       },
     }),

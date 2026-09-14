@@ -58,6 +58,7 @@ model User {
   lifetimePoints Int       @default(0)
   tier           Tier      @default(BRONZE)
   bonusClaimed   Boolean   @default(false)
+  suspended      Boolean   @default(false)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
