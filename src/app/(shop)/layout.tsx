@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Navbar } from "@/components/Navbar";
 import { getCurrentUser } from "@/lib/current-user";
 
@@ -14,12 +15,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
       <footer className="mt-auto border-t border-outline-variant/60 bg-surface-container-low">
         <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-space-md px-gutter-lg py-margin md:flex-row">
           <div className="flex flex-col items-center gap-1 md:items-start">
-            <span className="flex items-center gap-2 font-headline-sm text-headline-sm font-bold text-on-surface">
-              <span className="text-2xl">🧃</span>
-              <span className="font-extrabold text-primary">
-                Joy <span className="text-emerald-600">&amp;</span> <span className="text-secondary">Juice</span>
-              </span>
-            </span>
+            <Image src="/logo.png" alt="Joy & Juice" width={140} height={140} className="h-10 w-auto" />
             <p className="mt-1 font-body-sm text-body-sm text-on-surface-variant">
               © {new Date().getFullYear()} Joy &amp; Juice. All rights reserved. Cold-pressed daily.
             </p>

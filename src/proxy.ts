@@ -10,5 +10,12 @@ const { auth } = NextAuth(authConfig);
 export { auth as proxy };
 
 export const config = {
-  matcher: ["/((?!api/auth|_next/static|_next/image|favicon.ico).*)"],
+  // Also excludes any request for a static asset (logo.png, icon.png, the
+  // Next.js/Vercel default svgs, etc.) — Next's image optimizer fetches
+  // these internally without the visitor's session cookie, so gating them
+  // behind auth made every <Image> pointed at /public 400 with "not a
+  // valid image" instead of actually serving the file.
+  matcher: [
+    "/((?!api/auth|_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|webp|svg|ico|avif)$).*)",
+  ],
 };

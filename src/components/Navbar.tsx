@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getCurrentUser } from "@/lib/current-user";
 import { getCartCount } from "@/lib/cart";
 import { logoutAction } from "@/app/actions/auth-actions";
@@ -20,11 +21,15 @@ export async function Navbar() {
     <header className="sticky top-0 z-30 border-b border-outline-variant/60 bg-surface-container-lowest/90 backdrop-blur relative">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-gutter sm:px-gutter-lg">
         <div className="flex flex-1 items-center gap-space-lg">
-          <Link href="/menu" className="flex items-center gap-2">
-            <span className="text-2xl">🧃</span>
-            <span className="flex items-center gap-1 text-xl font-extrabold tracking-tight text-primary">
-              Joy <span className="text-emerald-600">&amp;</span> Juice
-            </span>
+          <Link href="/menu" className="flex shrink-0 items-center">
+            <Image
+              src="/logo.png"
+              alt="Joy & Juice"
+              width={160}
+              height={160}
+              priority
+              className="h-12 w-auto"
+            />
           </Link>
 
           <div className="relative hidden w-72 lg:block">
