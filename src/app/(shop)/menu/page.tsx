@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getActiveProducts } from "@/lib/products";
 import { MenuBrowser } from "@/components/menu/MenuBrowser";
 import { requireCurrentUser } from "@/lib/current-user";
@@ -58,10 +59,19 @@ export default async function MenuPage() {
 
           <div className="relative lg:col-span-5">
             <div className="relative mx-auto overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-md">
-              <div className="flex h-80 w-full items-center justify-center gap-6 bg-gradient-to-br from-emerald-100 via-amber-50 to-rose-100 text-7xl">
-                <span className="-rotate-6">🥬</span>
-                <span className="rotate-3">🍊</span>
-                <span className="-rotate-3">🍓</span>
+              <div className="flex h-80 w-full items-center justify-center gap-4 bg-gradient-to-br from-emerald-100 via-amber-50 to-rose-100 p-6">
+                {[
+                  { src: "/products/mangga.jpg", alt: "Mangga", rotate: "-rotate-6" },
+                  { src: "/products/jambu-merah.jpg", alt: "Jambu Merah", rotate: "rotate-2" },
+                  { src: "/products/nanas-strawberry.jpg", alt: "Nanas + Strawberry", rotate: "-rotate-3" },
+                ].map((photo) => (
+                  <div
+                    key={photo.src}
+                    className={`relative h-64 w-20 flex-shrink-0 overflow-hidden rounded-lg border-2 border-white shadow-lg sm:w-24 ${photo.rotate}`}
+                  >
+                    <Image src={photo.src} alt={photo.alt} fill sizes="120px" className="object-cover" />
+                  </div>
+                ))}
               </div>
               <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between rounded-lg border border-outline-variant bg-surface-container-lowest/95 p-3.5 shadow-sm backdrop-blur-md">
                 <div className="flex items-center gap-3">

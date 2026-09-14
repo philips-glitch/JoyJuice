@@ -20,6 +20,7 @@ import {
 import { TIER_CONFIG, REDEEM_BLOCK_SIZE } from "@/lib/tiers";
 import { labelFor, ICE_LEVELS, SWEETNESS_LEVELS } from "@/lib/menu-options";
 import { Icon } from "@/components/Icon";
+import { ProductImage } from "@/components/ProductImage";
 import type { CheckoutCartItem } from "@/lib/checkout-types";
 
 type DeliveryMethod = "INSTANT_COURIER" | "PICKUP";
@@ -149,8 +150,8 @@ export function CheckoutFlow({
                   className="flex items-center justify-between gap-3 rounded-xl border border-jj-border p-3"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-jj-bg text-2xl">
-                      {item.image}
+                    <span className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-jj-bg">
+                      <ProductImage image={item.image} alt={item.name} emojiClassName="flex h-full items-center justify-center text-2xl" />
                     </span>
                     <div>
                       <p className="text-sm font-semibold text-jj-text">{item.name}</p>

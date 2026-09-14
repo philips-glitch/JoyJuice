@@ -6,6 +6,7 @@ import { addToCartAction } from "@/app/actions/cart-actions";
 import { formatRupiah } from "@/lib/pricing";
 import { ICE_LEVELS, SWEETNESS_LEVELS } from "@/lib/menu-options";
 import { Icon } from "@/components/Icon";
+import { ProductImage } from "@/components/ProductImage";
 import type { ProductWithOptions } from "@/lib/products";
 
 export function CustomizePanel({ product }: { product: ProductWithOptions | null }) {
@@ -74,8 +75,8 @@ export function CustomizePanel({ product }: { product: ProductWithOptions | null
       </div>
 
       <div className="mb-5 flex items-center gap-3 border-b border-outline-variant/60 pb-4">
-        <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-surface-container-low text-3xl">
-          {product.image}
+        <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-surface-container-low">
+          <ProductImage image={product.image} alt={product.name} emojiClassName="flex h-full items-center justify-center text-3xl" />
         </div>
         <div>
           <h4 className="font-headline-sm text-base text-on-surface">{product.name}</h4>
@@ -91,7 +92,7 @@ export function CustomizePanel({ product }: { product: ProductWithOptions | null
           <label className="mb-2 block font-label-md text-label-md font-bold text-on-surface">
             1. Pilih Ukuran Botol
           </label>
-          <div className="grid grid-cols-2 gap-2">
+          <div className={`grid gap-2 ${product.sizes.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}>
             {product.sizes.map((s) => (
               <label
                 key={s.id}

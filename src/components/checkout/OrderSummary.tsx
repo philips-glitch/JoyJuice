@@ -3,6 +3,7 @@ import { formatRupiah } from "@/lib/pricing";
 import type { CheckoutCartItem } from "@/lib/checkout-types";
 import { labelFor, ICE_LEVELS, SWEETNESS_LEVELS } from "@/lib/menu-options";
 import { Icon } from "@/components/Icon";
+import { ProductImage } from "@/components/ProductImage";
 
 export function OrderSummary({
   items,
@@ -45,8 +46,8 @@ export function OrderSummary({
         {items.map((item) => (
           <div key={item.id} className="flex items-start justify-between gap-3 text-sm">
             <div className="flex items-start gap-2">
-              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-jj-bg text-lg">
-                {item.image}
+              <span className="relative h-9 w-9 flex-shrink-0 overflow-hidden rounded-lg bg-jj-bg">
+                <ProductImage image={item.image} alt={item.name} emojiClassName="flex h-full items-center justify-center text-lg" />
               </span>
               <div>
                 <p className="font-medium text-jj-text">{item.name}</p>

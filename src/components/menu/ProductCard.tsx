@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { addToCartAction } from "@/app/actions/cart-actions";
 import { formatRupiah } from "@/lib/pricing";
 import { Icon } from "@/components/Icon";
+import { ProductImage } from "@/components/ProductImage";
 import type { ProductWithOptions } from "@/lib/products";
 
 const TAG_CHIP_STYLES: Record<string, string> = {
@@ -55,8 +56,8 @@ export function ProductCard({
         onClick={onSelect}
         className="relative h-48 overflow-hidden bg-surface-container-low text-left"
       >
-        <div className="flex h-full w-full items-center justify-center text-6xl transition-transform duration-300 group-hover:scale-105">
-          {product.image}
+        <div className="h-full w-full transition-transform duration-300 group-hover:scale-105">
+          <ProductImage image={product.image} alt={product.name} emojiClassName="flex h-full items-center justify-center text-6xl" />
         </div>
         {product.tag && (
           <div className="absolute left-3 top-3 flex gap-1">
