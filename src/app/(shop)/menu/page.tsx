@@ -25,7 +25,7 @@ export default async function MenuPage() {
           <div className="flex flex-col items-start gap-4 lg:col-span-7">
             <div className="inline-flex items-center gap-2 rounded-full border border-outline-variant bg-surface-container-lowest px-3 py-1 font-label-md text-label-md text-primary shadow-xs">
               <Icon name="verified" filled className="!text-sm text-emerald-600" />
-              <span>100% Organik &amp; Cold-Pressed Segar Tiap Subuh</span>
+              <span>Segar, Nikmat, Penuh Kebaikan Buah!</span>
             </div>
             <h1 className="font-display-lg-mobile text-display-lg-mobile text-on-background sm:font-display-lg sm:text-display-lg">
               Kesegaran Buah Pilihan dalam Setiap Botol!
@@ -38,7 +38,7 @@ export default async function MenuPage() {
             <div className="flex items-center gap-3 rounded-lg border border-amber-300/80 bg-amber-50 p-3 text-amber-950">
               <Icon name="loyalty" filled className="font-bold text-secondary" />
               <span className="font-label-lg text-label-lg font-bold">
-                Promo Spesial: Dapatkan 10 Poin per Rp 10.000 belanja otomatis!
+                Promo Spesial: Dapatkan 1 botol jus 250 ml setiap pembelian 15 jus
               </span>
             </div>
 
