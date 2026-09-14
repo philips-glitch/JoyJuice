@@ -8,7 +8,7 @@ import {
   removeCartItemAction,
   updateCartItemQuantityAction,
 } from "@/app/actions/cart-actions";
-import { placeOrderAction } from "@/app/actions/checkout-actions";
+import { applyVoucherAction, placeOrderAction } from "@/app/actions/checkout-actions";
 import { OrderSummary } from "@/components/checkout/OrderSummary";
 import {
   DELIVERY_OPTIONS,
@@ -17,7 +17,7 @@ import {
   formatRupiah,
   shippingFeeFor,
 } from "@/lib/pricing";
-import { TIER_CONFIG, REDEEM_BLOCK_SIZE } from "@/lib/tiers";
+import { REDEEM_BLOCK_SIZE, type TierConfigMap } from "@/lib/tiers";
 import { labelFor, ICE_LEVELS, SWEETNESS_LEVELS } from "@/lib/menu-options";
 import { Icon } from "@/components/Icon";
 import { ProductImage } from "@/components/ProductImage";
@@ -35,9 +35,11 @@ const STEPS = [
 export function CheckoutFlow({
   items,
   user,
+  tierConfig,
 }: {
   items: CheckoutCartItem[];
   user: { name: string; tier: Tier; points: number };
+  tierConfig: TierConfigMap;
 }) {
   const router = useRouter();
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -51,10 +53,17 @@ export function CheckoutFlow({
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("QRIS");
   const [redeemPoints, setRedeemPoints] = useState(false);
 
+  const [voucherInput, setVoucherInput] = useState("");
+  const [appliedVoucher, setAppliedVoucher] = useState<{ code: string; discountAmount: number } | null>(
+    null,
+  );
+  const [voucherError, setVoucherError] = useState<string | null>(null);
+  const [voucherPending, startVoucherTransition] = useTransition();
+
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  const tierInfo = TIER_CONFIG[user.tier];
+  const tierInfo = tierConfig[user.tier];
   const subtotal = cartSubtotal(items);
   const shippingFee =
     step >= 2 ? shippingFeeFor(deliveryMethod, deliveryOption) : 0;
@@ -66,10 +75,33 @@ export function CheckoutFlow({
         subtotal,
         shippingFee,
         tier: user.tier,
+        tierConfig,
         pointsToRedeem,
+        voucherDiscount: appliedVoucher?.discountAmount ?? 0,
       }),
-    [subtotal, shippingFee, user.tier, pointsToRedeem],
+    [subtotal, shippingFee, user.tier, tierConfig, pointsToRedeem, appliedVoucher],
   );
+
+  function handleApplyVoucher() {
+    const code = voucherInput.trim();
+    if (!code) return;
+    setVoucherError(null);
+    startVoucherTransition(async () => {
+      try {
+        const result = await applyVoucherAction(code);
+        setAppliedVoucher(result);
+      } catch (err) {
+        setAppliedVoucher(null);
+        setVoucherError(err instanceof Error ? err.message : "Kode voucher tidak valid.");
+      }
+    });
+  }
+
+  function handleRemoveVoucher() {
+    setAppliedVoucher(null);
+    setVoucherInput("");
+    setVoucherError(null);
+  }
 
   function handleQuantityChange(cartItemId: string, quantity: number) {
     startTransition(async () => {
@@ -97,6 +129,7 @@ export function CheckoutFlow({
           driverNote,
           paymentMethod,
           redeemPoints,
+          voucherCode: appliedVoucher?.code,
         });
         router.push(`/orders/${orderId}`);
       } catch (err) {
@@ -362,6 +395,47 @@ export function CheckoutFlow({
                 />
               </div>
 
+              <div className="rounded-xl border border-jj-border p-3">
+                <p className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-jj-text">
+                  <Icon name="confirmation_number" className="!text-base text-primary" /> Kode Voucher
+                </p>
+                {appliedVoucher ? (
+                  <div className="flex items-center justify-between rounded-lg bg-emerald-50 px-3 py-2 text-sm">
+                    <span className="font-semibold text-emerald-800">
+                      &quot;{appliedVoucher.code}&quot; diterapkan — diskon{" "}
+                      {formatRupiah(appliedVoucher.discountAmount)}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleRemoveVoucher}
+                      className="text-xs font-semibold text-jj-muted hover:text-jj-pink"
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      value={voucherInput}
+                      onChange={(e) => setVoucherInput(e.target.value.toUpperCase())}
+                      placeholder="Masukkan kode voucher"
+                      className="flex-1 rounded-xl border border-jj-border px-3 py-2 text-sm uppercase text-jj-text"
+                    />
+                    <button
+                      type="button"
+                      disabled={voucherPending || !voucherInput.trim()}
+                      onClick={handleApplyVoucher}
+                      className="rounded-xl border border-jj-orange px-4 py-2 text-sm font-semibold text-jj-orange-dark disabled:opacity-50"
+                    >
+                      {voucherPending ? "..." : "Pakai"}
+                    </button>
+                  </div>
+                )}
+                {voucherError && (
+                  <p className="mt-1.5 text-xs text-red-600">{voucherError}</p>
+                )}
+              </div>
+
               <div className="rounded-xl border border-jj-gold bg-jj-gold-bg p-3">
                 <label className="flex items-start gap-2 text-sm text-jj-gold">
                   <input
@@ -426,6 +500,8 @@ export function CheckoutFlow({
           showShipping={step >= 2}
           showPoints={step >= 3}
           pointsDiscount={totals.pointsDiscount}
+          voucherDiscount={totals.voucherDiscount}
+          voucherCode={appliedVoucher?.code}
           pointsEarned={totals.pointsEarned}
           total={totals.total}
         />

@@ -1,24 +1,28 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { getTierConfigMap } from "@/lib/tier-config.server";
 import { Icon } from "@/components/Icon";
 import { CustomersTable } from "@/components/admin/CustomersTable";
 
 export default async function AdminCustomersPage() {
-  const customers = await prisma.user.findMany({
-    where: { role: "CUSTOMER" },
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      name: true,
-      username: true,
-      email: true,
-      phone: true,
-      tier: true,
-      points: true,
-      suspended: true,
-      createdAt: true,
-    },
-  });
+  const [customers, tierConfig] = await Promise.all([
+    prisma.user.findMany({
+      where: { role: "CUSTOMER" },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        email: true,
+        phone: true,
+        tier: true,
+        points: true,
+        suspended: true,
+        createdAt: true,
+      },
+    }),
+    getTierConfigMap(),
+  ]);
 
   return (
     <div className="flex flex-col gap-space-lg">
@@ -42,6 +46,7 @@ export default async function AdminCustomersPage() {
 
       <CustomersTable
         customers={customers.map((c) => ({ ...c, createdAt: c.createdAt.toISOString() }))}
+        tierConfig={tierConfig}
       />
     </div>
   );

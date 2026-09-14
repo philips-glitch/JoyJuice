@@ -66,6 +66,7 @@ model User {
   orders            Order[]
   pointsTransactions PointsTransaction[]
   rewardRedemptions RewardRedemption[]
+  voucherRedemptions VoucherRedemption[]
 }
 
 model Product {
@@ -123,6 +124,8 @@ model Order {
   memberDiscount   Int
   pointsRedeemed   Int            @default(0)
   pointsDiscount   Int            @default(0)
+  voucherCode      String?
+  voucherDiscount  Int            @default(0)
   total            Int
   pointsEarned     Int
   createdAt        DateTime       @default(now())
@@ -130,6 +133,7 @@ model Order {
   user  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   items OrderItem[]
   pointsTransactions PointsTransaction[]
+  voucherRedemptions VoucherRedemption[]
 }
 
 model OrderItem {
@@ -185,4 +189,39 @@ model RewardRedemption {
 
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   rewardItem RewardItem @relation(fields: [rewardItemId], references: [id], onDelete: Cascade)
+}
+
+model TierConfig {
+  tier              Tier     @id
+  label             String
+  minLifetimePoints Int
+  multiplier        Float
+  flatDiscount      Int
+  color             String
+  updatedAt         DateTime @updatedAt
+}
+
+model Voucher {
+  id             String    @id @default(cuid())
+  code           String    @unique
+  discountAmount Int
+  active         Boolean   @default(true)
+  maxRedemptions Int?
+  perUserLimit   Int?
+  expiresAt      DateTime?
+  createdAt      DateTime  @default(now())
+
+  redemptions VoucherRedemption[]
+}
+
+model VoucherRedemption {
+  id        String   @id @default(cuid())
+  voucherId String
+  userId    String
+  orderId   String?
+  createdAt DateTime @default(now())
+
+  voucher Voucher @relation(fields: [voucherId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order   Order?  @relation(fields: [orderId], references: [id], onDelete: SetNull)
 }

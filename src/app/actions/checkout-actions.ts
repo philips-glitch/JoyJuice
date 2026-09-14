@@ -10,6 +10,8 @@ import {
   shippingFeeFor,
 } from "@/lib/pricing";
 import { tierForLifetimePoints, REDEEM_BLOCK_SIZE } from "@/lib/tiers";
+import { getTierConfigMap } from "@/lib/tier-config.server";
+import { validateVoucher } from "@/lib/vouchers.server";
 
 export type PlaceOrderInput = {
   deliveryMethod: "INSTANT_COURIER" | "PICKUP";
@@ -19,7 +21,18 @@ export type PlaceOrderInput = {
   driverNote?: string;
   paymentMethod: "QRIS" | "VIRTUAL_ACCOUNT" | "MANUAL_TRANSFER";
   redeemPoints: boolean;
+  voucherCode?: string;
 };
+
+/** Validates a voucher code so the checkout UI can preview the discount before placing the order. */
+export async function applyVoucherAction(code: string) {
+  const user = await requireCurrentUser();
+  const voucher = await validateVoucher(code, user.id);
+  if (!voucher) {
+    throw new Error("Kode voucher tidak valid atau sudah tidak berlaku.");
+  }
+  return { code: voucher.code, discountAmount: voucher.discountAmount };
+}
 
 export async function placeOrderAction(input: PlaceOrderInput) {
   const user = await requireCurrentUser();
@@ -37,6 +50,7 @@ export async function placeOrderAction(input: PlaceOrderInput) {
 
   const subtotal = cartSubtotal(items);
   const shippingFee = shippingFeeFor(input.deliveryMethod, input.deliveryOption);
+  const tierConfig = await getTierConfigMap();
 
   // Redemption is only ever a whole block of REDEEM_BLOCK_SIZE points, and
   // never more than the user's current balance — re-validated here so a
@@ -44,12 +58,24 @@ export async function placeOrderAction(input: PlaceOrderInput) {
   const pointsToRedeem =
     input.redeemPoints && user.points >= REDEEM_BLOCK_SIZE ? REDEEM_BLOCK_SIZE : 0;
 
-  const { memberDiscount, pointsDiscount, total, pointsEarned } = computeOrderTotals({
-    subtotal,
-    shippingFee,
-    tier: user.tier,
-    pointsToRedeem,
-  });
+  // Voucher is re-validated server-side too — never trust the client's
+  // computed discount amount.
+  const voucher = input.voucherCode?.trim()
+    ? await validateVoucher(input.voucherCode.trim(), user.id)
+    : null;
+  if (input.voucherCode?.trim() && !voucher) {
+    throw new Error("Kode voucher tidak valid atau sudah tidak berlaku.");
+  }
+
+  const { memberDiscount, pointsDiscount, voucherDiscount, total, pointsEarned } =
+    computeOrderTotals({
+      subtotal,
+      shippingFee,
+      tier: user.tier,
+      tierConfig,
+      pointsToRedeem,
+      voucherDiscount: voucher?.discountAmount ?? 0,
+    });
 
   const order = await prisma.$transaction(async (tx) => {
     const created = await tx.order.create({
@@ -67,6 +93,8 @@ export async function placeOrderAction(input: PlaceOrderInput) {
         memberDiscount,
         pointsRedeemed: pointsToRedeem,
         pointsDiscount,
+        voucherCode: voucher?.code ?? null,
+        voucherDiscount,
         total,
         pointsEarned,
         items: {
@@ -88,7 +116,7 @@ export async function placeOrderAction(input: PlaceOrderInput) {
     const balanceAfterRedeem = user.points - pointsToRedeem;
     const balanceAfterEarn = balanceAfterRedeem + pointsEarned;
     const newLifetimePoints = user.lifetimePoints + pointsEarned;
-    const newTier = tierForLifetimePoints(newLifetimePoints);
+    const newTier = tierForLifetimePoints(newLifetimePoints, tierConfig);
 
     const txLogs = [];
     if (pointsToRedeem > 0) {
@@ -111,6 +139,12 @@ export async function placeOrderAction(input: PlaceOrderInput) {
     });
 
     await tx.pointsTransaction.createMany({ data: txLogs });
+
+    if (voucher) {
+      await tx.voucherRedemption.create({
+        data: { voucherId: voucher.id, userId: user.id, orderId: created.id },
+      });
+    }
 
     await tx.user.update({
       where: { id: user.id },

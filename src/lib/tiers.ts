@@ -7,65 +7,48 @@ import type { Tier } from "@prisma/client";
  * *lifetime* points earned (never decreases on redemption), each tier grants
  * a point-earning multiplier and a flat checkout discount. These numbers are
  * a reasonable starting point for a proptech-adjacent side project and are
- * easy to retune later — see README "Business rules & assumptions".
+ * easy to retune later.
+ *
+ * The actual per-tier numbers now live in the `TierConfig` table (admin-
+ * editable at /admin/loyalty) — see src/lib/tier-config.server.ts for the
+ * DB-backed fetch. This file only keeps pure helpers (safe to import from
+ * client components) plus the fallback defaults used if the table is ever
+ * empty (e.g. a fresh, unseeded database).
  */
-export const TIER_CONFIG: Record<
-  Tier,
-  {
-    label: string;
-    minLifetimePoints: number;
-    multiplier: number;
-    flatDiscount: number;
-    color: string;
-  }
-> = {
-  BRONZE: {
-    label: "Bronze",
-    minLifetimePoints: 0,
-    multiplier: 1,
-    flatDiscount: 0,
-    color: "#a16207",
-  },
-  SILVER: {
-    label: "Silver",
-    minLifetimePoints: 150,
-    multiplier: 1.25,
-    flatDiscount: 5_000,
-    color: "#6b7280",
-  },
-  GOLD: {
-    label: "Gold",
-    minLifetimePoints: 400,
-    multiplier: 1.5,
-    flatDiscount: 10_000,
-    color: "#d97706",
-  },
-  PLATINUM: {
-    label: "Platinum",
-    minLifetimePoints: 800,
-    multiplier: 2,
-    flatDiscount: 20_000,
-    color: "#7c3aed",
-  },
+export type TierConfigEntry = {
+  label: string;
+  minLifetimePoints: number;
+  multiplier: number;
+  flatDiscount: number;
+  color: string;
 };
 
-const TIER_ORDER: Tier[] = ["BRONZE", "SILVER", "GOLD", "PLATINUM"];
+export type TierConfigMap = Record<Tier, TierConfigEntry>;
 
-export function tierForLifetimePoints(lifetimePoints: number): Tier {
+export const DEFAULT_TIER_CONFIG: TierConfigMap = {
+  BRONZE: { label: "Bronze", minLifetimePoints: 0, multiplier: 1, flatDiscount: 0, color: "#a16207" },
+  SILVER: { label: "Silver", minLifetimePoints: 150, multiplier: 1.25, flatDiscount: 5_000, color: "#6b7280" },
+  GOLD: { label: "Gold", minLifetimePoints: 400, multiplier: 1.5, flatDiscount: 10_000, color: "#d97706" },
+  PLATINUM: { label: "Platinum", minLifetimePoints: 800, multiplier: 2, flatDiscount: 20_000, color: "#7c3aed" },
+};
+
+export const TIER_ORDER: Tier[] = ["BRONZE", "SILVER", "GOLD", "PLATINUM"];
+
+export function tierForLifetimePoints(lifetimePoints: number, config: TierConfigMap): Tier {
   let current: Tier = "BRONZE";
   for (const tier of TIER_ORDER) {
-    if (lifetimePoints >= TIER_CONFIG[tier].minLifetimePoints) {
+    if (lifetimePoints >= config[tier].minLifetimePoints) {
       current = tier;
     }
   }
   return current;
 }
 
-export function nextTierInfo(tier: Tier) {
+export function nextTierInfo(tier: Tier, config: TierConfigMap) {
   const idx = TIER_ORDER.indexOf(tier);
   if (idx === TIER_ORDER.length - 1) return null;
   const next = TIER_ORDER[idx + 1];
-  return { tier: next, ...TIER_CONFIG[next] };
+  return { tier: next, ...config[next] };
 }
 
 export const POINTS_PER_RUPIAH_SPENT = 1 / 1000; // 1 point per Rp 1.000 net spend

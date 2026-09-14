@@ -1,12 +1,13 @@
 import { requireCurrentUser } from "@/lib/current-user";
 import { getCartItems } from "@/lib/cart";
+import { getTierConfigMap } from "@/lib/tier-config.server";
 import { CheckoutFlow } from "@/components/checkout/CheckoutFlow";
 import { Icon } from "@/components/Icon";
 import type { CheckoutCartItem } from "@/lib/checkout-types";
 
 export default async function CheckoutPage() {
   const user = await requireCurrentUser();
-  const cartItems = await getCartItems(user.id);
+  const [cartItems, tierConfig] = await Promise.all([getCartItems(user.id), getTierConfigMap()]);
 
   const items: CheckoutCartItem[] = cartItems.map((item) => ({
     id: item.id,
@@ -38,7 +39,11 @@ export default async function CheckoutPage() {
         </span>
       </div>
 
-      <CheckoutFlow items={items} user={{ name: user.name, tier: user.tier, points: user.points }} />
+      <CheckoutFlow
+        items={items}
+        user={{ name: user.name, tier: user.tier, points: user.points }}
+        tierConfig={tierConfig}
+      />
     </div>
   );
 }

@@ -3,13 +3,13 @@ import Image from "next/image";
 import { getActiveProducts } from "@/lib/products";
 import { MenuBrowser } from "@/components/menu/MenuBrowser";
 import { requireCurrentUser } from "@/lib/current-user";
-import { TIER_CONFIG } from "@/lib/tiers";
+import { getTierConfigMap } from "@/lib/tier-config.server";
 import { Icon } from "@/components/Icon";
 
 export default async function MenuPage() {
   const user = await requireCurrentUser();
-  const products = await getActiveProducts();
-  const tier = TIER_CONFIG[user.tier];
+  const [products, tierConfig] = await Promise.all([getActiveProducts(), getTierConfigMap()]);
+  const tier = tierConfig[user.tier];
 
   return (
     <div className="flex flex-col gap-space-xl">

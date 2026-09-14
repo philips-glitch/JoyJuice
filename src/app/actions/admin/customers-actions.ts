@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireCurrentUser } from "@/lib/current-user";
-import { TIER_CONFIG } from "@/lib/tiers";
+import { getTierConfigMap } from "@/lib/tier-config.server";
 import type { Tier } from "@prisma/client";
 
 async function requireAdmin() {
@@ -133,7 +133,8 @@ export async function updateCustomerAction(
   // Manual tier override sets lifetimePoints to whatever floor that tier
   // requires (if higher than current), so the tier doesn't silently
   // re-derive itself back down on the next order.
-  const tierFloor = TIER_CONFIG[tier as Tier].minLifetimePoints;
+  const tierConfig = await getTierConfigMap();
+  const tierFloor = tierConfig[tier as Tier].minLifetimePoints;
   const newLifetimePoints = Math.max(customer.lifetimePoints, tierFloor);
 
   await prisma.$transaction(async (tx) => {

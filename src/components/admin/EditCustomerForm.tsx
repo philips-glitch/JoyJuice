@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { updateCustomerAction, type CustomerFormState } from "@/app/actions/admin/customers-actions";
-import { TIER_CONFIG } from "@/lib/tiers";
+import type { TierConfigMap } from "@/lib/tiers";
 import type { Tier } from "@prisma/client";
 
 const INPUT_CLASS =
@@ -11,6 +11,7 @@ const INPUT_CLASS =
 export function EditCustomerForm({
   id,
   initialValues,
+  tierConfig,
 }: {
   id: string;
   initialValues: {
@@ -21,6 +22,7 @@ export function EditCustomerForm({
     points: number;
     suspended: boolean;
   };
+  tierConfig: TierConfigMap;
 }) {
   const action = updateCustomerAction.bind(null, id);
   const [state, formAction, pending] = useActionState<CustomerFormState, FormData>(
@@ -64,7 +66,7 @@ export function EditCustomerForm({
         <select name="tier" defaultValue={initialValues.tier} className={INPUT_CLASS}>
           {(["BRONZE", "SILVER", "GOLD", "PLATINUM"] as const).map((t) => (
             <option key={t} value={t}>
-              {TIER_CONFIG[t].label}
+              {tierConfig[t].label}
             </option>
           ))}
         </select>

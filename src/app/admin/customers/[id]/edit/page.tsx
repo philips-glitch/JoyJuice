@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { getTierConfigMap } from "@/lib/tier-config.server";
 import { Icon } from "@/components/Icon";
 import { EditCustomerForm } from "@/components/admin/EditCustomerForm";
 
@@ -10,13 +11,14 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
   const customer = await prisma.user.findUnique({ where: { id } });
   if (!customer || customer.role !== "CUSTOMER") notFound();
 
-  const [orderCount, pointsHistory] = await Promise.all([
+  const [orderCount, pointsHistory, tierConfig] = await Promise.all([
     prisma.order.count({ where: { userId: id } }),
     prisma.pointsTransaction.findMany({
       where: { userId: id },
       orderBy: { createdAt: "desc" },
       take: 10,
     }),
+    getTierConfigMap(),
   ]);
 
   return (
@@ -49,6 +51,7 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
               points: customer.points,
               suspended: customer.suspended,
             }}
+            tierConfig={tierConfig}
           />
         </div>
 

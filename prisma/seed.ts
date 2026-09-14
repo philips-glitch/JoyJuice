@@ -221,7 +221,23 @@ const rewardItems = [
   },
 ];
 
+const defaultTierConfig = [
+  { tier: "BRONZE" as const, label: "Bronze", minLifetimePoints: 0, multiplier: 1, flatDiscount: 0, color: "#a16207" },
+  { tier: "SILVER" as const, label: "Silver", minLifetimePoints: 150, multiplier: 1.25, flatDiscount: 5_000, color: "#6b7280" },
+  { tier: "GOLD" as const, label: "Gold", minLifetimePoints: 400, multiplier: 1.5, flatDiscount: 10_000, color: "#d97706" },
+  { tier: "PLATINUM" as const, label: "Platinum", minLifetimePoints: 800, multiplier: 2, flatDiscount: 20_000, color: "#7c3aed" },
+];
+
 async function main() {
+  console.log("Seeding tier config...");
+  for (const t of defaultTierConfig) {
+    await prisma.tierConfig.upsert({
+      where: { tier: t.tier },
+      update: {},
+      create: t,
+    });
+  }
+
   console.log("Seeding products...");
   for (const p of products) {
     await prisma.product.upsert({

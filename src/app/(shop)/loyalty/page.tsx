@@ -1,6 +1,7 @@
 import { requireCurrentUser } from "@/lib/current-user";
 import { prisma } from "@/lib/prisma";
-import { TIER_CONFIG, nextTierInfo } from "@/lib/tiers";
+import { nextTierInfo } from "@/lib/tiers";
+import { getTierConfigMap } from "@/lib/tier-config.server";
 import { ClaimBonusButton } from "@/components/loyalty/ClaimBonusButton";
 import { Icon } from "@/components/Icon";
 
@@ -13,8 +14,9 @@ const TX_LABELS: Record<string, { icon: string; label: string }> = {
 
 export default async function LoyaltyPage() {
   const user = await requireCurrentUser();
-  const tierInfo = TIER_CONFIG[user.tier];
-  const next = nextTierInfo(user.tier);
+  const tierConfig = await getTierConfigMap();
+  const tierInfo = tierConfig[user.tier];
+  const next = nextTierInfo(user.tier, tierConfig);
 
   const progress = next
     ? Math.min(
@@ -74,7 +76,7 @@ export default async function LoyaltyPage() {
         <div className="flex justify-between text-[11px] text-jj-muted">
           {(["BRONZE", "SILVER", "GOLD", "PLATINUM"] as const).map((t) => (
             <span key={t} className={user.tier === t ? "font-bold text-jj-orange-dark" : ""}>
-              {TIER_CONFIG[t].label}
+              {tierConfig[t].label}
             </span>
           ))}
         </div>

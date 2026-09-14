@@ -14,6 +14,8 @@ export function OrderSummary({
   showShipping,
   showPoints,
   pointsDiscount,
+  voucherDiscount,
+  voucherCode,
   pointsEarned,
   total,
 }: {
@@ -25,6 +27,8 @@ export function OrderSummary({
   showShipping: boolean;
   showPoints: boolean;
   pointsDiscount: number;
+  voucherDiscount?: number;
+  voucherCode?: string | null;
   pointsEarned: number;
   total: number;
 }) {
@@ -88,6 +92,18 @@ export function OrderSummary({
               </>
             }
             value={`- ${formatRupiah(pointsDiscount)}`}
+            valueClass="text-jj-pink"
+          />
+        )}
+        {!!voucherDiscount && voucherDiscount > 0 && (
+          <Row
+            label={
+              <>
+                <Icon name="confirmation_number" className="!text-sm" /> Voucher{" "}
+                {voucherCode ? `"${voucherCode}"` : ""}
+              </>
+            }
+            value={`- ${formatRupiah(voucherDiscount)}`}
             valueClass="text-jj-pink"
           />
         )}

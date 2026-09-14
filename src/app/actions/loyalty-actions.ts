@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireCurrentUser } from "@/lib/current-user";
 import { tierForLifetimePoints } from "@/lib/tiers";
+import { getTierConfigMap } from "@/lib/tier-config.server";
 
 /** One-time welcome bonus: +100 points, claimable once per account. */
 const SIGNUP_BONUS_POINTS = 100;
@@ -16,7 +17,8 @@ export async function claimSignupBonusAction() {
 
   const newLifetimePoints = user.lifetimePoints + SIGNUP_BONUS_POINTS;
   const newPoints = user.points + SIGNUP_BONUS_POINTS;
-  const newTier = tierForLifetimePoints(newLifetimePoints);
+  const tierConfig = await getTierConfigMap();
+  const newTier = tierForLifetimePoints(newLifetimePoints, tierConfig);
 
   await prisma.$transaction([
     prisma.pointsTransaction.create({

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatRupiah } from "@/lib/pricing";
-import { TIER_CONFIG } from "@/lib/tiers";
+import { getTierConfigMap } from "@/lib/tier-config.server";
 import { Icon } from "@/components/Icon";
 import type { Tier } from "@prisma/client";
 
@@ -23,6 +23,7 @@ export default async function AdminDashboardPage() {
     activeProductCount,
     tierGroups,
     recentOrders,
+    tierConfig,
   ] = await Promise.all([
     prisma.order.count(),
     prisma.order.aggregate({ _sum: { total: true } }),
@@ -39,6 +40,7 @@ export default async function AdminDashboardPage() {
       take: 5,
       include: { user: { select: { name: true, username: true } } },
     }),
+    getTierConfigMap(),
   ]);
 
   const tierCounts = Object.fromEntries(tierGroups.map((g) => [g.tier, g._count._all])) as Record<
@@ -112,15 +114,15 @@ export default async function AdminDashboardPage() {
               return (
                 <div key={tier}>
                   <div className="mb-1 flex items-center justify-between font-label-md text-label-md">
-                    <span style={{ color: TIER_CONFIG[tier].color }} className="font-bold">
-                      {TIER_CONFIG[tier].label}
+                    <span style={{ color: tierConfig[tier].color }} className="font-bold">
+                      {tierConfig[tier].label}
                     </span>
                     <span className="text-on-surface-variant">{count} member</span>
                   </div>
                   <div className="h-2 w-full overflow-hidden rounded-full bg-surface-container">
                     <div
                       className="h-full rounded-full"
-                      style={{ width: `${pct}%`, background: TIER_CONFIG[tier].color }}
+                      style={{ width: `${pct}%`, background: tierConfig[tier].color }}
                     />
                   </div>
                 </div>

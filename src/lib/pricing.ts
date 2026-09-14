@@ -1,5 +1,5 @@
 import type { Tier } from "@prisma/client";
-import { TIER_CONFIG, RUPIAH_PER_POINT_REDEEMED } from "./tiers";
+import { RUPIAH_PER_POINT_REDEEMED, type TierConfigMap } from "./tiers";
 import { parseSizes, parseToppings } from "./menu-options";
 
 export type CartLineForPricing = {
@@ -49,8 +49,8 @@ export function shippingFeeFor(
 }
 
 /** Flat member discount granted at checkout based on tier. */
-export function memberDiscountFor(tier: Tier): number {
-  return TIER_CONFIG[tier].flatDiscount;
+export function memberDiscountFor(tier: Tier, tierConfig: TierConfigMap): number {
+  return tierConfig[tier].flatDiscount;
 }
 
 /** Rupiah discount from redeeming a whole number of points. */
@@ -81,16 +81,26 @@ export function computeOrderTotals(params: {
   subtotal: number;
   shippingFee: number;
   tier: Tier;
+  tierConfig: TierConfigMap;
   pointsToRedeem: number;
+  voucherDiscount?: number;
 }) {
-  const memberDiscount = memberDiscountFor(params.tier);
+  const memberDiscount = memberDiscountFor(params.tier, params.tierConfig);
   const pointsDiscount = pointsDiscountFor(params.pointsToRedeem);
-  const total = Math.max(params.subtotal + params.shippingFee - memberDiscount - pointsDiscount, 0);
+  const voucherDiscount = params.voucherDiscount ?? 0;
+  const total = Math.max(
+    params.subtotal + params.shippingFee - memberDiscount - pointsDiscount - voucherDiscount,
+    0,
+  );
 
-  // Points are earned on product spend net of member discount and any
-  // portion paid for with redeemed points (shipping is excluded).
-  const earnableBase = Math.max(params.subtotal - memberDiscount - pointsDiscount, 0);
-  const pointsEarned = pointsEarnedFor(earnableBase, TIER_CONFIG[params.tier].multiplier);
+  // Points are earned on product spend net of member discount, voucher
+  // discount, and any portion paid for with redeemed points (shipping is
+  // excluded).
+  const earnableBase = Math.max(
+    params.subtotal - memberDiscount - pointsDiscount - voucherDiscount,
+    0,
+  );
+  const pointsEarned = pointsEarnedFor(earnableBase, params.tierConfig[params.tier].multiplier);
 
-  return { memberDiscount, pointsDiscount, total, pointsEarned };
+  return { memberDiscount, pointsDiscount, voucherDiscount, total, pointsEarned };
 }

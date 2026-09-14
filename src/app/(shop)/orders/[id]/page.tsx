@@ -91,6 +91,12 @@ export default async function OrderConfirmationPage({
               value={`- ${formatRupiah(order.pointsDiscount)}`}
             />
           )}
+          {order.voucherDiscount > 0 && (
+            <Row
+              label={`Voucher${order.voucherCode ? ` "${order.voucherCode}"` : ""}`}
+              value={`- ${formatRupiah(order.voucherDiscount)}`}
+            />
+          )}
           <div className="flex items-center justify-between border-t border-jj-border pt-2 font-bold text-jj-text">
             <span>Total Dibayar</span>
             <span className="text-jj-orange-dark">{formatRupiah(order.total)}</span>
