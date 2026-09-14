@@ -3,18 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const LINKS = [
+const BASE_LINKS = [
   { href: "/menu", label: "Menu" },
   { href: "/loyalty", label: "Loyalty Portal" },
   { href: "/rewards", label: "Rewards" },
 ];
 
-export function NavLinks() {
+export function NavLinks({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname();
+  const links = isAdmin ? [...BASE_LINKS, { href: "/admin/orders", label: "Admin Orders" }] : BASE_LINKS;
 
   return (
-    <nav className="hidden items-center gap-6 text-sm font-medium text-jj-muted md:flex">
-      {LINKS.map((link) => {
+    <nav className="hidden items-center space-x-6 md:flex">
+      {links.map((link) => {
         const active = pathname?.startsWith(link.href);
         return (
           <Link
@@ -22,8 +23,8 @@ export function NavLinks() {
             href={link.href}
             className={
               active
-                ? "border-b-2 border-jj-orange pb-1 text-jj-orange-dark"
-                : "pb-1 hover:text-jj-text"
+                ? "border-b-2 border-primary pb-1 font-label-lg text-label-lg font-bold text-primary"
+                : "font-label-lg text-label-lg font-medium text-on-surface-variant transition-colors hover:text-primary"
             }
           >
             {link.label}

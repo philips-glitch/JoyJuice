@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { redeemRewardAction } from "@/app/actions/rewards-actions";
+import { Icon } from "@/components/Icon";
 
 export function RewardCard({
   reward,
@@ -51,9 +52,19 @@ export function RewardCard({
               }
             })
           }
-          className="jj-btn-primary rounded-full px-4 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
+          className="jj-btn-primary flex items-center gap-1 rounded-full px-4 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
         >
-          {redeemed ? "✓ Ditukar" : pending ? "Memproses..." : canAfford ? "Tukar Poin" : "Poin Kurang"}
+          {redeemed ? (
+            <>
+              <Icon name="check_circle" filled className="!text-sm" /> Ditukar
+            </>
+          ) : pending ? (
+            "Memproses..."
+          ) : canAfford ? (
+            "Tukar Poin"
+          ) : (
+            "Poin Kurang"
+          )}
         </button>
       </div>
       {error && <p className="text-xs text-red-600">{error}</p>}

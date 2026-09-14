@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation";
 import { addToCartAction } from "@/app/actions/cart-actions";
 import { formatRupiah } from "@/lib/pricing";
 import { ICE_LEVELS, SWEETNESS_LEVELS } from "@/lib/menu-options";
+import { Icon } from "@/components/Icon";
 import type { ProductWithOptions } from "@/lib/products";
 
 export function CustomizePanel({ product }: { product: ProductWithOptions | null }) {
   const router = useRouter();
   const [sizeId, setSizeId] = useState(product?.sizes[0]?.id ?? "");
-  const [iceLevel, setIceLevel] = useState<string>(ICE_LEVELS[0].id);
+  const [iceLevel, setIceLevel] = useState<string>(ICE_LEVELS[1].id);
   const [sweetness, setSweetness] = useState<string>(SWEETNESS_LEVELS[0].id);
   const [toppingIds, setToppingIds] = useState<string[]>([]);
   const [note, setNote] = useState("");
@@ -29,7 +30,7 @@ export function CustomizePanel({ product }: { product: ProductWithOptions | null
 
   if (!product) {
     return (
-      <div className="jj-card p-6 text-center text-sm text-jj-muted">
+      <div className="rounded-xl border border-outline-variant/70 bg-surface-container-lowest p-6 text-center font-body-sm text-body-sm text-on-surface-variant">
         Pilih menu untuk mulai kustomisasi.
       </div>
     );
@@ -59,132 +60,181 @@ export function CustomizePanel({ product }: { product: ProductWithOptions | null
   }
 
   return (
-    <div className="jj-card sticky top-20 flex flex-col gap-4 p-5">
-      <div className="flex items-center gap-1 text-xs font-semibold text-jj-orange-dark">
-        <span className="h-1.5 w-1.5 rounded-full bg-jj-orange" /> Kustomisasi Minuman
-        <span className="ml-auto rounded-full bg-jj-gold-bg px-2 py-0.5 text-jj-gold">
-          +{product.pointsBadge} Poin
+    <aside className="sticky top-28 rounded-xl border-2 border-primary/40 bg-surface-container-lowest p-6 shadow-md">
+      <div className="mb-4 flex items-center justify-between border-b border-outline-variant/60 pb-4">
+        <div className="flex items-center gap-2">
+          <span className="h-3 w-3 animate-pulse rounded-full bg-primary" />
+          <span className="font-label-lg text-label-lg font-bold text-primary">
+            Kustomisasi Pesanan
+          </span>
+        </div>
+        <span className="rounded-full border border-amber-300 bg-amber-100 px-2.5 py-0.5 font-label-sm text-label-sm font-bold text-amber-900">
+          +{product.pointsBadge} Poin Earned
         </span>
       </div>
 
-      <div className="flex items-center gap-3">
-        <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-jj-bg text-3xl">
+      <div className="mb-5 flex items-center gap-3 border-b border-outline-variant/60 pb-4">
+        <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-surface-container-low text-3xl">
           {product.image}
         </div>
         <div>
-          <p className="font-semibold text-jj-text">{product.name}</p>
-          <p className="text-xs text-jj-muted">{product.ingredients}</p>
-          <p className="text-sm font-bold text-jj-orange-dark">
-            {formatRupiah(product.basePrice)}
-          </p>
+          <h4 className="font-headline-sm text-base text-on-surface">{product.name}</h4>
+          <p className="font-body-sm text-body-sm text-outline">{product.ingredients}</p>
+          <span className="font-label-md text-label-md font-bold text-primary">
+            Harga Dasar: {formatRupiah(product.basePrice)}
+          </span>
         </div>
       </div>
 
-      <div>
-        <p className="mb-2 text-xs font-semibold text-jj-text">1. Pilih Ukuran Botol</p>
-        <div className="grid grid-cols-2 gap-2">
-          {product.sizes.map((s) => (
-            <button
-              key={s.id}
-              type="button"
-              onClick={() => setSizeId(s.id)}
-              className={`rounded-xl border px-3 py-2 text-left text-xs ${
-                sizeId === s.id
-                  ? "border-jj-orange bg-orange-50 text-jj-orange-dark"
-                  : "border-jj-border text-jj-muted"
-              }`}
-            >
-              <span className="block font-semibold">{s.label}</span>
-              <span>{s.priceDelta > 0 ? `+${formatRupiah(s.priceDelta)}` : "Standar"}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <p className="mb-2 text-xs font-semibold text-jj-text">2. Level Dingin / Es</p>
-        <div className="grid grid-cols-3 gap-2">
-          {ICE_LEVELS.map((lvl) => (
-            <button
-              key={lvl.id}
-              type="button"
-              onClick={() => setIceLevel(lvl.id)}
-              className={`rounded-xl border px-2 py-2 text-[11px] font-medium ${
-                iceLevel === lvl.id
-                  ? "border-jj-orange bg-orange-50 text-jj-orange-dark"
-                  : "border-jj-border text-jj-muted"
-              }`}
-            >
-              {lvl.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <label className="text-xs font-semibold text-jj-text">
-        3. Rasa Manis Alami
-        <select
-          value={sweetness}
-          onChange={(e) => setSweetness(e.target.value)}
-          className="mt-2 w-full rounded-xl border border-jj-border px-3 py-2 text-xs text-jj-text"
-        >
-          {SWEETNESS_LEVELS.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.label}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      {product.toppings.length > 0 && (
+      <div className="space-y-4">
         <div>
-          <p className="mb-2 text-xs font-semibold text-jj-text">4. Tambahan Superfood / Topping</p>
-          <div className="flex flex-col gap-2">
-            {product.toppings.map((t) => (
+          <label className="mb-2 block font-label-md text-label-md font-bold text-on-surface">
+            1. Pilih Ukuran Botol
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            {product.sizes.map((s) => (
               <label
-                key={t.id}
-                className="flex items-center justify-between rounded-xl border border-jj-border px-3 py-2 text-xs text-jj-text"
+                key={s.id}
+                className={`flex cursor-pointer flex-col rounded-lg p-2.5 transition-all ${
+                  sizeId === s.id
+                    ? "border-2 border-primary bg-orange-50/60"
+                    : "border border-outline-variant hover:border-outline"
+                }`}
               >
-                <span className="flex items-center gap-2">
+                <div className="flex items-center justify-between">
+                  <span
+                    className={`font-label-md text-label-md ${
+                      sizeId === s.id ? "font-bold text-on-surface" : "text-on-surface"
+                    }`}
+                  >
+                    {s.label}
+                  </span>
                   <input
-                    type="checkbox"
-                    checked={toppingIds.includes(t.id)}
-                    onChange={() => toggleTopping(t.id)}
+                    type="radio"
+                    name="size"
+                    checked={sizeId === s.id}
+                    onChange={() => setSizeId(s.id)}
+                    className="h-4 w-4 text-primary focus:ring-primary"
                   />
-                  {t.label}
+                </div>
+                <span
+                  className={`mt-1 font-body-sm text-body-sm ${
+                    s.priceDelta > 0 ? "font-semibold text-secondary" : "text-outline"
+                  }`}
+                >
+                  {s.priceDelta > 0 ? `+${formatRupiah(s.priceDelta)}` : "Standar Nutrisi"}
                 </span>
-                <span className="text-jj-muted">+{formatRupiah(t.priceDelta)}</span>
               </label>
             ))}
           </div>
         </div>
-      )}
 
-      <label className="text-xs font-semibold text-jj-text">
-        Catatan Tambahan untuk Barista
-        <input
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          placeholder="Contoh: Jahe dikurangi, botol dingin..."
-          className="mt-2 w-full rounded-xl border border-jj-border px-3 py-2 text-xs text-jj-text"
-        />
-      </label>
+        <div>
+          <label className="mb-2 block font-label-md text-label-md font-bold text-on-surface">
+            2. Level Dingin / Es
+          </label>
+          <div className="grid grid-cols-3 gap-2">
+            {ICE_LEVELS.map((lvl) => (
+              <label
+                key={lvl.id}
+                className={`cursor-pointer rounded-lg p-2 text-center font-body-sm text-body-sm transition-colors ${
+                  iceLevel === lvl.id
+                    ? "border-2 border-primary bg-orange-50/60 font-semibold text-primary"
+                    : "border border-outline-variant hover:bg-surface-container-low"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="ice"
+                  className="sr-only"
+                  checked={iceLevel === lvl.id}
+                  onChange={() => setIceLevel(lvl.id)}
+                />
+                <span>{lvl.label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
 
-      <button
-        type="button"
-        onClick={handleAdd}
-        disabled={pending}
-        className="jj-btn-primary rounded-full px-5 py-3 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 disabled:opacity-60"
-      >
-        {pending ? "Menambahkan..." : `Tambah ke Keranjang · ${formatRupiah(unitPrice)}`}
-      </button>
+        <div>
+          <label className="mb-2 block font-label-md text-label-md font-bold text-on-surface">
+            3. Rasa Manis Alami (Raw Honey / Dates)
+          </label>
+          <select
+            value={sweetness}
+            onChange={(e) => setSweetness(e.target.value)}
+            className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest p-2.5 font-body-sm text-body-sm text-on-surface focus:border-primary focus:ring-primary"
+          >
+            {SWEETNESS_LEVELS.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      {justAdded && (
-        <p className="text-center text-xs font-medium text-jj-green">
-          ✓ Ditambahkan ke keranjang — +{product.pointsBadge} Poin akan otomatis ditambahkan ke
-          saldo Anda setelah pesanan selesai.
-        </p>
-      )}
-    </div>
+        {product.toppings.length > 0 && (
+          <div>
+            <label className="mb-2 block font-label-md text-label-md font-bold text-on-surface">
+              4. Tambahan Superfood / Topping
+            </label>
+            <div className="space-y-2">
+              {product.toppings.map((t) => (
+                <label
+                  key={t.id}
+                  className="flex cursor-pointer items-center justify-between rounded-lg border border-outline-variant p-2 hover:bg-surface-container-low"
+                >
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={toppingIds.includes(t.id)}
+                      onChange={() => toggleTopping(t.id)}
+                      className="h-4 w-4 rounded text-primary focus:ring-primary"
+                    />
+                    <span className="font-body-sm text-body-sm text-on-surface">{t.label}</span>
+                  </div>
+                  <span className="font-label-sm text-label-sm text-outline">
+                    +{formatRupiah(t.priceDelta)}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div>
+          <label className="mb-1 block font-label-sm text-label-sm text-outline">
+            Catatan Tambahan untuk Barista
+          </label>
+          <input
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Contoh: Jahe dikurangi, botol dingin..."
+            className="w-full rounded-lg border border-outline-variant p-2 font-body-sm text-body-sm focus:border-primary focus:ring-primary"
+          />
+        </div>
+
+        <div className="pt-3">
+          <button
+            type="button"
+            onClick={handleAdd}
+            disabled={pending}
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3.5 font-label-lg text-label-lg text-on-primary shadow-md transition-all hover:bg-primary-container active:scale-[.98] disabled:opacity-60"
+          >
+            <Icon name="shopping_cart_checkout" className="!text-base" />
+            <span>
+              {pending
+                ? "Menambahkan..."
+                : `Tambah ke Keranjang - ${formatRupiah(unitPrice)}`}
+            </span>
+          </button>
+          <p className="mt-2 text-center font-label-sm text-label-sm text-outline">
+            {justAdded
+              ? `✓ Ditambahkan! +${product.pointsBadge} poin akan masuk setelah pesanan selesai.`
+              : `Pembelian ini mengumpulkan ${product.pointsBadge} poin otomatis ke akun Anda`}
+          </p>
+        </div>
+      </div>
+    </aside>
   );
 }

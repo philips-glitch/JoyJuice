@@ -5,6 +5,7 @@ import { requireCurrentUser } from "@/lib/current-user";
 import { formatRupiah } from "@/lib/pricing";
 import { DELIVERY_OPTIONS } from "@/lib/pricing";
 import { labelFor, ICE_LEVELS, SWEETNESS_LEVELS } from "@/lib/menu-options";
+import { Icon } from "@/components/Icon";
 
 const PAYMENT_LABELS: Record<string, string> = {
   QRIS: "QRIS Instan",
@@ -39,16 +40,17 @@ export default async function OrderConfirmationPage({
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
       <div className="jj-card flex flex-col items-center gap-2 p-8 text-center">
-        <span className="flex h-16 w-16 items-center justify-center rounded-full bg-jj-green-bg text-4xl">
-          ✓
+        <span className="flex h-16 w-16 items-center justify-center rounded-full bg-jj-green-bg text-emerald-600">
+          <Icon name="check_circle" filled className="!text-4xl" />
         </span>
         <h1 className="text-2xl font-bold text-jj-text">Pesanan Berhasil Dikonfirmasi!</h1>
         <p className="text-sm text-jj-muted">
           Order #{order.id.slice(-6).toUpperCase()} · {order.createdAt.toLocaleString("id-ID")}
         </p>
 
-        <div className="mt-3 rounded-xl bg-jj-gold-bg px-4 py-2 text-sm font-semibold text-jj-gold">
-          ⭐ +{order.pointsEarned} Poin Joy ditambahkan ke akun Anda
+        <div className="mt-3 flex items-center gap-1.5 rounded-xl bg-jj-gold-bg px-4 py-2 text-sm font-semibold text-jj-gold">
+          <Icon name="stars" filled className="!text-base" />
+          +{order.pointsEarned} Poin Joy ditambahkan ke akun Anda
         </div>
       </div>
 

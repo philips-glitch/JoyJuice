@@ -3,6 +3,7 @@ import { getActiveProducts } from "@/lib/products";
 import { MenuBrowser } from "@/components/menu/MenuBrowser";
 import { requireCurrentUser } from "@/lib/current-user";
 import { TIER_CONFIG } from "@/lib/tiers";
+import { Icon } from "@/components/Icon";
 
 export default async function MenuPage() {
   const user = await requireCurrentUser();
@@ -10,43 +11,77 @@ export default async function MenuPage() {
   const tier = TIER_CONFIG[user.tier];
 
   return (
-    <div className="flex flex-col gap-8">
-      <section className="jj-card flex flex-col gap-6 overflow-hidden p-6 sm:p-8 lg:flex-row lg:items-center">
-        <div className="flex-1">
-          <span className="inline-flex items-center gap-1 rounded-full bg-jj-green-bg px-3 py-1 text-xs font-semibold text-jj-green">
-            ✓ 100% Organik &amp; Cold-Pressed Segar Tiap Subuh
-          </span>
-          <h1 className="mt-4 text-3xl font-extrabold leading-tight text-jj-text sm:text-4xl">
-            100% Jus Murni Cold-Pressed &amp; Dapatkan Poin Setiap Tegukan!
-          </h1>
-          <p className="mt-3 max-w-xl text-sm text-jj-muted">
-            Dibuat dari hasil panen lokal pilihan tanpa pemanis buatan, tanpa pengawet, dan tanpa
-            setetes air pun. Nutrisi hidup murni langsung ke botol kaca Anda.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-3">
-            <a
-              href="#kategori"
-              className="jj-btn-primary rounded-full px-5 py-2.5 text-sm font-semibold text-white"
-            >
-              🛍 Pesan Sekarang
-            </a>
-            <Link
-              href="/rewards"
-              className="rounded-full border border-jj-border px-5 py-2.5 text-sm font-semibold text-jj-orange-dark hover:bg-jj-bg"
-            >
-              🎁 Klaim Bonus Poin
-            </Link>
-          </div>
-        </div>
+    <div className="flex flex-col gap-space-xl">
+      {/* HERO BANNER */}
+      <section className="relative overflow-hidden rounded-xl border border-outline-variant/60 bg-gradient-to-br from-surface-container-lowest via-surface-container-low to-surface-container-high p-6 shadow-sm md:p-10">
+        <div className="pointer-events-none absolute -top-20 -right-20 h-96 w-96 rounded-full bg-amber-200/30 blur-3xl" />
+        <div className="pointer-events-none absolute right-40 -bottom-20 h-80 w-80 rounded-full bg-rose-200/30 blur-3xl" />
 
-        <div className="jj-card flex w-full max-w-sm items-center gap-3 border-jj-gold-bg bg-jj-gold-bg/60 p-4">
-          <span className="text-2xl">🏅</span>
-          <div className="text-sm">
-            <p className="font-semibold text-jj-gold">Member {tier.label} Active</p>
-            <p className="text-xs text-jj-gold">
-              Cashback poin {tier.multiplier}x hari ini · Saldo {user.points.toLocaleString("id-ID")}{" "}
-              pts
+        <div className="relative z-10 grid grid-cols-1 items-center gap-8 lg:grid-cols-12">
+          <div className="flex flex-col items-start gap-4 lg:col-span-7">
+            <div className="inline-flex items-center gap-2 rounded-full border border-outline-variant bg-surface-container-lowest px-3 py-1 font-label-md text-label-md text-primary shadow-xs">
+              <Icon name="verified" filled className="!text-sm text-emerald-600" />
+              <span>100% Organik &amp; Cold-Pressed Segar Tiap Subuh</span>
+            </div>
+            <h1 className="font-display-lg-mobile text-display-lg-mobile text-on-background sm:font-display-lg sm:text-display-lg">
+              100% Jus Murni Cold-Pressed &amp; Dapatkan Poin Setiap Tegukan!
+            </h1>
+            <p className="max-w-2xl font-body-lg text-body-lg text-on-surface-variant">
+              Dibuat dari hasil panen lokal pilihan tanpa pemanis buatan, tanpa pengawet, dan tanpa
+              setetes air pun. Nutrisi hidup murni langsung ke botol kaca Anda.
             </p>
+
+            <div className="flex items-center gap-3 rounded-lg border border-amber-300/80 bg-amber-50 p-3 text-amber-950">
+              <Icon name="loyalty" filled className="font-bold text-secondary" />
+              <span className="font-label-lg text-label-lg font-bold">
+                Promo Spesial: Dapatkan 10 Poin per Rp 10.000 belanja otomatis!
+              </span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-space-md pt-2">
+              <a
+                href="#kategori"
+                className="flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-label-lg text-label-lg text-on-primary shadow-sm transition-all hover:bg-primary-container active:scale-95"
+              >
+                <Icon name="local_mall" className="!text-sm" />
+                <span>Pesan Sekarang</span>
+              </a>
+              <Link
+                href="/loyalty"
+                className="flex items-center gap-2 rounded-lg bg-secondary px-5 py-3 font-label-lg text-label-lg text-white shadow-sm transition-all hover:bg-rose-700 active:scale-95"
+              >
+                <Icon name="redeem" filled className="!text-sm" />
+                <span>Klaim Bonus Poin Member Baru</span>
+              </Link>
+            </div>
+          </div>
+
+          <div className="relative lg:col-span-5">
+            <div className="relative mx-auto overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-md">
+              <div className="flex h-80 w-full items-center justify-center gap-6 bg-gradient-to-br from-emerald-100 via-amber-50 to-rose-100 text-7xl">
+                <span className="-rotate-6">🥬</span>
+                <span className="rotate-3">🍊</span>
+                <span className="-rotate-3">🍓</span>
+              </div>
+              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between rounded-lg border border-outline-variant bg-surface-container-lowest/95 p-3.5 shadow-sm backdrop-blur-md">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                    <Icon name="nature_people" filled />
+                  </div>
+                  <div>
+                    <p className="font-label-md text-label-md text-on-surface">
+                      Member {tier.label} Active
+                    </p>
+                    <p className="font-body-sm text-body-sm text-outline">
+                      Cashback Poin {tier.multiplier}x Hari Ini
+                    </p>
+                  </div>
+                </div>
+                <span className="font-label-lg text-label-lg font-bold text-primary">
+                  Saldo {user.points.toLocaleString("id-ID")}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -55,23 +90,38 @@ export default async function MenuPage() {
         <MenuBrowser products={products} />
       </section>
 
-      <section className="jj-card flex flex-col items-start gap-4 bg-gradient-to-r from-jj-orange to-jj-pink p-8 text-white sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-semibold">
+      {/* LOYALTY CLUB CALLOUT BANNER */}
+      <section className="relative overflow-hidden rounded-xl bg-gradient-to-r from-primary to-secondary p-8 text-white shadow-sm md:p-10">
+        <div className="pointer-events-none absolute inset-y-0 right-0 flex w-1/3 items-center justify-center opacity-10">
+          <Icon name="card_membership" className="!text-[9rem]" />
+        </div>
+        <div className="relative z-10 flex max-w-2xl flex-col items-start gap-3">
+          <span className="rounded-full bg-amber-300 px-3 py-1 font-label-sm text-label-sm font-bold uppercase tracking-wider text-amber-950">
             Joy &amp; Juice Rewards Program
           </span>
-          <h3 className="mt-3 text-2xl font-bold">Tukar Poin dengan Jus Gratis &amp; Diskon Eksklusif</h3>
-          <p className="mt-2 max-w-xl text-sm text-white/90">
-            Setiap Rp10.000 belanja bernilai 10 poin. Kumpulkan poin dan tukarkan di halaman
-            Rewards tanpa syarat tersembunyi.
+          <h2 className="font-headline-lg text-headline-lg text-white">
+            Tukar Poin dengan Jus Gratis &amp; Diskon Eksklusif
+          </h2>
+          <p className="font-body-md text-body-md text-orange-50">
+            Setiap Rp 10.000 belanja bernilai 10 poin. Kumpulkan 500 poin dan klaim 1 botol Jus
+            Cold-Pressed reguler pilihan Anda tanpa syarat tersembunyi.
           </p>
+          <div className="flex flex-wrap items-center gap-4 pt-3">
+            <Link
+              href="/loyalty"
+              className="flex items-center gap-2 rounded-lg bg-white px-5 py-2.5 font-label-lg text-label-lg font-bold text-orange-600 shadow-sm transition-colors hover:bg-amber-50"
+            >
+              <Icon name="stars" filled className="!text-sm text-amber-500" />
+              <span>Buka Loyalty Portal</span>
+            </Link>
+            <Link
+              href="/rewards"
+              className="font-label-lg text-label-lg text-white underline underline-offset-4 transition-colors hover:text-amber-200"
+            >
+              Lihat Katalog Hadiah &amp; Level Member →
+            </Link>
+          </div>
         </div>
-        <Link
-          href="/rewards"
-          className="whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-jj-orange-dark"
-        >
-          Buka Rewards →
-        </Link>
       </section>
     </div>
   );

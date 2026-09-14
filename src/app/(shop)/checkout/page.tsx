@@ -1,6 +1,7 @@
 import { requireCurrentUser } from "@/lib/current-user";
 import { getCartItems } from "@/lib/cart";
 import { CheckoutFlow } from "@/components/checkout/CheckoutFlow";
+import { Icon } from "@/components/Icon";
 import type { CheckoutCartItem } from "@/lib/checkout-types";
 
 export default async function CheckoutPage() {
@@ -22,15 +23,18 @@ export default async function CheckoutPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="jj-card flex flex-col gap-2 p-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="rounded-xl border border-outline-variant/70 bg-surface-container-lowest p-5 shadow-sm sm:flex sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold text-jj-text">Checkout &amp; Perhitungan Poin</h1>
-          <p className="text-sm text-jj-muted">
+          <h1 className="font-headline-md text-headline-md text-on-surface">
+            Checkout &amp; Perhitungan Poin
+          </h1>
+          <p className="font-body-sm text-body-sm text-on-surface-variant">
             Lengkapi detail pengiriman dan gunakan loyalty points Anda untuk potongan langsung.
           </p>
         </div>
-        <span className="inline-flex w-fit items-center gap-1 rounded-full bg-jj-green-bg px-3 py-1 text-xs font-semibold text-jj-green">
-          🛡 Transaksi Aman &amp; Terenkripsi
+        <span className="mt-3 inline-flex w-fit items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 font-label-md text-label-md text-emerald-800 sm:mt-0">
+          <Icon name="shield" filled className="!text-sm" />
+          Transaksi Aman &amp; Terenkripsi
         </span>
       </div>
 

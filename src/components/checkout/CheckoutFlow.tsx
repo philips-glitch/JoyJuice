@@ -19,6 +19,7 @@ import {
 } from "@/lib/pricing";
 import { TIER_CONFIG, REDEEM_BLOCK_SIZE } from "@/lib/tiers";
 import { labelFor, ICE_LEVELS, SWEETNESS_LEVELS } from "@/lib/menu-options";
+import { Icon } from "@/components/Icon";
 import type { CheckoutCartItem } from "@/lib/checkout-types";
 
 type DeliveryMethod = "INSTANT_COURIER" | "PICKUP";
@@ -127,7 +128,9 @@ export function CheckoutFlow({
         <div className="flex flex-col gap-4">
           {step === 1 && (
             <div className="jj-card flex flex-col gap-4 p-5">
-              <h2 className="font-semibold text-jj-text">🛒 Keranjang Anda</h2>
+              <h2 className="flex items-center gap-2 font-semibold text-jj-text">
+                <Icon name="shopping_cart" className="text-primary" /> Keranjang Anda
+              </h2>
               {items.length === 0 && (
                 <div className="flex flex-col items-center gap-3 py-10 text-center text-sm text-jj-muted">
                   <span className="text-4xl">🧃</span>
@@ -184,10 +187,10 @@ export function CheckoutFlow({
                       type="button"
                       disabled={pending}
                       onClick={() => handleRemove(item.id)}
-                      className="text-xs text-jj-muted hover:text-jj-pink"
+                      className="text-jj-muted hover:text-jj-pink"
                       aria-label={`Hapus ${item.name}`}
                     >
-                      🗑
+                      <Icon name="delete" className="!text-base" />
                     </button>
                   </div>
                 </div>
@@ -206,7 +209,9 @@ export function CheckoutFlow({
 
           {step === 2 && (
             <div className="jj-card flex flex-col gap-5 p-5">
-              <h2 className="font-semibold text-jj-text">🚚 Metode Pengiriman</h2>
+              <h2 className="flex items-center gap-2 font-semibold text-jj-text">
+                <Icon name="local_shipping" className="text-primary" /> Metode Pengiriman
+              </h2>
 
               <div className="grid grid-cols-2 gap-2">
                 <button
@@ -219,9 +224,9 @@ export function CheckoutFlow({
                     deliveryMethod === "INSTANT_COURIER"
                       ? "border-jj-orange bg-orange-50 text-jj-orange-dark"
                       : "border-jj-border text-jj-muted"
-                  }`}
+                  } flex items-center justify-center gap-1.5`}
                 >
-                  🛵 Delivery Kurir Instan
+                  <Icon name="two_wheeler" className="!text-base" /> Delivery Kurir Instan
                 </button>
                 <button
                   type="button"
@@ -233,9 +238,9 @@ export function CheckoutFlow({
                     deliveryMethod === "PICKUP"
                       ? "border-jj-orange bg-orange-50 text-jj-orange-dark"
                       : "border-jj-border text-jj-muted"
-                  }`}
+                  } flex items-center justify-center gap-1.5`}
                 >
-                  🏬 Ambil di Gerai (Pickup)
+                  <Icon name="storefront" className="!text-base" /> Ambil di Gerai (Pickup)
                 </button>
               </div>
 
@@ -327,7 +332,9 @@ export function CheckoutFlow({
 
           {step === 3 && (
             <div className="jj-card flex flex-col gap-5 p-5">
-              <h2 className="font-semibold text-jj-text">💳 Metode Pembayaran</h2>
+              <h2 className="flex items-center gap-2 font-semibold text-jj-text">
+                <Icon name="credit_card" className="text-primary" /> Metode Pembayaran
+              </h2>
 
               <div className="flex flex-col gap-2">
                 <PaymentOption
@@ -395,7 +402,14 @@ export function CheckoutFlow({
                   onClick={handlePlaceOrder}
                   className="jj-btn-primary rounded-full px-6 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
                 >
-                  {pending ? "Memproses..." : "✓ Konfirmasi Pesanan & Kumpulkan Poin"}
+                  {pending ? (
+                    "Memproses..."
+                  ) : (
+                    <span className="flex items-center gap-1.5">
+                      <Icon name="check_circle" filled className="!text-base" />
+                      Konfirmasi Pesanan &amp; Kumpulkan Poin
+                    </span>
+                  )}
                 </button>
               </div>
             </div>
@@ -447,8 +461,8 @@ function PaymentOption({
         </span>
       </span>
       {badge && (
-        <span className="whitespace-nowrap rounded-full bg-jj-green-bg px-2 py-0.5 text-[10px] font-semibold text-jj-green">
-          ⚡ {badge}
+        <span className="flex items-center gap-0.5 whitespace-nowrap rounded-full bg-jj-green-bg px-2 py-0.5 text-[10px] font-semibold text-jj-green">
+          <Icon name="bolt" filled className="!text-xs" /> {badge}
         </span>
       )}
     </label>

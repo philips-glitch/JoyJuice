@@ -1,6 +1,8 @@
+import type { ReactNode } from "react";
 import { formatRupiah } from "@/lib/pricing";
 import type { CheckoutCartItem } from "@/lib/checkout-types";
 import { labelFor, ICE_LEVELS, SWEETNESS_LEVELS } from "@/lib/menu-options";
+import { Icon } from "@/components/Icon";
 
 export function OrderSummary({
   items,
@@ -29,7 +31,7 @@ export function OrderSummary({
     <div className="jj-card sticky top-20 flex flex-col gap-4 p-5">
       <div className="flex items-center justify-between">
         <h2 className="flex items-center gap-2 font-semibold text-jj-text">
-          🧺 Ringkasan Pesanan
+          <Icon name="shopping_basket" className="text-primary" /> Ringkasan Pesanan
         </h2>
         <span className="rounded-full bg-jj-gold-bg px-2 py-0.5 text-xs font-semibold text-jj-gold">
           {items.length} Item
@@ -67,14 +69,23 @@ export function OrderSummary({
         {showShipping && <Row label="Biaya Pengiriman" value={formatRupiah(shippingFee)} />}
         {memberDiscount > 0 && (
           <Row
-            label={`🏷 Potongan Diskon Member ${tierLabel}`}
+            label={
+              <>
+                <Icon name="sell" className="!text-sm" /> Potongan Diskon Member {tierLabel}
+              </>
+            }
             value={`- ${formatRupiah(memberDiscount)}`}
             valueClass="text-jj-pink"
           />
         )}
         {showPoints && pointsDiscount > 0 && (
           <Row
-            label="⭐ Potongan Penukaran Poin"
+            label={
+              <>
+                <Icon name="stars" filled className="!text-sm text-amber-500" /> Potongan
+                Penukaran Poin
+              </>
+            }
             value={`- ${formatRupiah(pointsDiscount)}`}
             valueClass="text-jj-pink"
           />
@@ -84,7 +95,10 @@ export function OrderSummary({
       {showPoints && (
         <div className="rounded-xl border border-jj-gold bg-jj-gold-bg p-3 text-xs text-jj-gold">
           <div className="flex items-center justify-between font-semibold">
-            <span>⭐ Joy &amp; Juice Point Rewards</span>
+            <span className="flex items-center gap-1">
+              <Icon name="stars" filled className="!text-sm text-amber-500" /> Joy &amp; Juice
+              Point Rewards
+            </span>
             <span className="rounded-full bg-white px-2 py-0.5">{tierLabel} Tier Benefit</span>
           </div>
           <div className="mt-2 flex items-center justify-between">
@@ -110,13 +124,13 @@ function Row({
   value,
   valueClass,
 }: {
-  label: string;
+  label: ReactNode;
   value: string;
   valueClass?: string;
 }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-jj-muted">{label}</span>
+      <span className="flex items-center gap-1 text-jj-muted">{label}</span>
       <span className={`font-medium text-jj-text ${valueClass ?? ""}`}>{value}</span>
     </div>
   );

@@ -2,12 +2,13 @@ import { requireCurrentUser } from "@/lib/current-user";
 import { prisma } from "@/lib/prisma";
 import { TIER_CONFIG, nextTierInfo } from "@/lib/tiers";
 import { ClaimBonusButton } from "@/components/loyalty/ClaimBonusButton";
+import { Icon } from "@/components/Icon";
 
 const TX_LABELS: Record<string, { icon: string; label: string }> = {
-  EARN: { icon: "➕", label: "Poin Masuk" },
-  REDEEM: { icon: "➖", label: "Poin Ditukar" },
-  BONUS: { icon: "🎁", label: "Bonus" },
-  ADJUST: { icon: "⚙️", label: "Penyesuaian" },
+  EARN: { icon: "add_circle", label: "Poin Masuk" },
+  REDEEM: { icon: "remove_circle", label: "Poin Ditukar" },
+  BONUS: { icon: "redeem", label: "Bonus" },
+  ADJUST: { icon: "settings", label: "Penyesuaian" },
 };
 
 export default async function LoyaltyPage() {
@@ -40,7 +41,7 @@ export default async function LoyaltyPage() {
             className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold"
             style={{ background: `${tierInfo.color}1a`, color: tierInfo.color }}
           >
-            🏅 Member {tierInfo.label}
+            <Icon name="military_tech" filled className="!text-sm" /> Member {tierInfo.label}
           </span>
           <h1 className="mt-3 text-3xl font-extrabold text-jj-text">
             {user.points.toLocaleString("id-ID")} <span className="text-lg font-medium">Poin</span>
@@ -88,8 +89,8 @@ export default async function LoyaltyPage() {
             {transactions.map((tx) => (
               <div key={tx.id} className="flex items-center justify-between py-3 text-sm">
                 <div className="flex items-center gap-3">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-jj-bg text-lg">
-                    {TX_LABELS[tx.type]?.icon ?? "•"}
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-jj-bg text-jj-orange-dark">
+                    <Icon name={TX_LABELS[tx.type]?.icon ?? "circle"} filled />
                   </span>
                   <div>
                     <p className="font-medium text-jj-text">{tx.description}</p>
