@@ -8,11 +8,8 @@ import { ProductImage } from "@/components/ProductImage";
 export function OrderSummary({
   items,
   subtotal,
-  shippingFee,
   memberDiscount,
   tierLabel,
-  showShipping,
-  showPoints,
   pointsDiscount,
   voucherDiscount,
   voucherCode,
@@ -21,11 +18,8 @@ export function OrderSummary({
 }: {
   items: CheckoutCartItem[];
   subtotal: number;
-  shippingFee: number;
   memberDiscount: number;
   tierLabel: string;
-  showShipping: boolean;
-  showPoints: boolean;
   pointsDiscount: number;
   voucherDiscount?: number;
   voucherCode?: string | null;
@@ -71,7 +65,6 @@ export function OrderSummary({
 
       <div className="flex flex-col gap-2 text-sm">
         <Row label="Subtotal Produk" value={formatRupiah(subtotal)} />
-        {showShipping && <Row label="Biaya Pengiriman" value={formatRupiah(shippingFee)} />}
         {memberDiscount > 0 && (
           <Row
             label={
@@ -83,7 +76,7 @@ export function OrderSummary({
             valueClass="text-jj-pink"
           />
         )}
-        {showPoints && pointsDiscount > 0 && (
+        {pointsDiscount > 0 && (
           <Row
             label={
               <>
@@ -109,26 +102,27 @@ export function OrderSummary({
         )}
       </div>
 
-      {showPoints && (
-        <div className="rounded-xl border border-jj-gold bg-jj-gold-bg p-3 text-xs text-jj-gold">
-          <div className="flex items-center justify-between font-semibold">
-            <span className="flex items-center gap-1">
-              <Icon name="stars" filled className="!text-sm text-amber-500" /> Joy &amp; Juice
-              Point Rewards
-            </span>
-            <span className="rounded-full bg-white px-2 py-0.5">{tierLabel} Tier Benefit</span>
-          </div>
-          <div className="mt-2 flex items-center justify-between">
-            <span>Estimasi Poin Didapat</span>
-            <span className="text-base font-bold">+{pointsEarned} Poin Joy</span>
-          </div>
+      <div className="rounded-xl border border-jj-gold bg-jj-gold-bg p-3 text-xs text-jj-gold">
+        <div className="flex items-center justify-between font-semibold">
+          <span className="flex items-center gap-1">
+            <Icon name="stars" filled className="!text-sm text-amber-500" /> Joy &amp; Juice
+            Point Rewards
+          </span>
+          <span className="rounded-full bg-white px-2 py-0.5">{tierLabel} Tier Benefit</span>
         </div>
-      )}
+        <div className="mt-2 flex items-center justify-between">
+          <span>Estimasi Poin Didapat</span>
+          <span className="text-base font-bold">+{pointsEarned} Poin Joy</span>
+        </div>
+        <p className="mt-1.5 text-[11px] text-jj-gold/80">
+          Poin masuk ke akun Anda setelah admin memverifikasi bukti pembayaran.
+        </p>
+      </div>
 
       <div className="flex items-center justify-between border-t border-jj-border pt-4">
         <div>
-          <p className="text-xs text-jj-muted">Total Pembayaran Akhir</p>
-          <p className="text-[10px] text-jj-muted">Sudah termasuk PPN &amp; packaging</p>
+          <p className="text-xs text-jj-muted">Total Pembayaran</p>
+          <p className="text-[10px] text-jj-muted">Ambil sendiri di gerai — tanpa pengiriman</p>
         </div>
         <p className="text-2xl font-extrabold text-jj-orange-dark">{formatRupiah(total)}</p>
       </div>

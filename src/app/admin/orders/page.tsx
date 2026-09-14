@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatRupiah } from "@/lib/pricing";
 import { Icon } from "@/components/Icon";
@@ -31,6 +32,8 @@ export default async function AdminOrdersPage() {
     },
   });
 
+  const pendingCount = orders.filter((o) => o.status === "PENDING_PAYMENT").length;
+
   return (
     <div className="flex flex-col gap-space-lg">
       <div>
@@ -39,6 +42,11 @@ export default async function AdminOrdersPage() {
         </h1>
         <p className="font-body-sm text-body-sm text-on-surface-variant">
           Semua pesanan yang masuk, terbaru di atas.
+          {pendingCount > 0 && (
+            <span className="ml-1 font-semibold text-amber-700">
+              {pendingCount} menunggu verifikasi pembayaran.
+            </span>
+          )}
         </p>
       </div>
 
@@ -65,7 +73,15 @@ export default async function AdminOrdersPage() {
             {orders.map((order) => (
               <tr key={order.id} className="hover:bg-surface-container-low">
                 <td className="px-4 py-3 font-medium text-on-surface">
-                  #{order.id.slice(-6).toUpperCase()}
+                  <Link
+                    href={`/admin/orders/${order.id}`}
+                    className="flex items-center gap-1.5 text-primary hover:underline"
+                  >
+                    #{order.id.slice(-6).toUpperCase()}
+                    {order.status === "PENDING_PAYMENT" && (
+                      <Icon name="hourglass_top" className="!text-sm text-amber-600" />
+                    )}
+                  </Link>
                 </td>
                 <td className="px-4 py-3 text-on-surface">
                   {order.user.name}

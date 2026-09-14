@@ -129,6 +129,8 @@ model Order {
   voucherDiscount  Int            @default(0)
   total            Int
   pointsEarned     Int
+  paymentProofUrl  String?
+  pointsCredited   Boolean        @default(false)
   createdAt        DateTime       @default(now())
 
   user  User        @relation(fields: [userId], references: [id], onDelete: Cascade)

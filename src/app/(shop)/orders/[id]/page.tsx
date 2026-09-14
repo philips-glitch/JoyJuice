@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireCurrentUser } from "@/lib/current-user";
 import { formatRupiah } from "@/lib/pricing";
-import { DELIVERY_OPTIONS } from "@/lib/pricing";
 import { labelFor, ICE_LEVELS, SWEETNESS_LEVELS } from "@/lib/menu-options";
 import { Icon } from "@/components/Icon";
 import { ProductImage } from "@/components/ProductImage";
@@ -31,28 +30,51 @@ export default async function OrderConfirmationPage({
     notFound();
   }
 
-  const deliveryLabel =
-    order.deliveryMethod === "PICKUP"
-      ? DELIVERY_OPTIONS.PICKUP.STORE.label
-      : (DELIVERY_OPTIONS.INSTANT_COURIER as Record<string, { label: string }>)[
-          order.deliveryOption
-        ]?.label ?? order.deliveryOption;
+  const statusBanner =
+    order.status === "PENDING_PAYMENT"
+      ? {
+          icon: "hourglass_top",
+          iconClass: "bg-amber-100 text-amber-700",
+          title: "Pesanan Diterima — Menunggu Verifikasi",
+          note: "Bukti pembayaran Anda sedang diperiksa oleh admin. Poin akan masuk ke akun Anda setelah pembayaran disetujui.",
+        }
+      : order.status === "CANCELLED"
+        ? {
+            icon: "cancel",
+            iconClass: "bg-rose-100 text-rose-700",
+            title: "Pesanan Dibatalkan",
+            note: "Bukti pembayaran untuk pesanan ini ditolak oleh admin. Poin yang ditukar (jika ada) sudah dikembalikan ke akun Anda.",
+          }
+        : {
+            icon: "check_circle",
+            iconClass: "bg-jj-green-bg text-emerald-600",
+            title: "Pembayaran Terverifikasi!",
+            note: null,
+          };
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
       <div className="jj-card flex flex-col items-center gap-2 p-8 text-center">
-        <span className="flex h-16 w-16 items-center justify-center rounded-full bg-jj-green-bg text-emerald-600">
-          <Icon name="check_circle" filled className="!text-4xl" />
+        <span
+          className={`flex h-16 w-16 items-center justify-center rounded-full ${statusBanner.iconClass}`}
+        >
+          <Icon name={statusBanner.icon} filled className="!text-4xl" />
         </span>
-        <h1 className="text-2xl font-bold text-jj-text">Pesanan Berhasil Dikonfirmasi!</h1>
+        <h1 className="text-2xl font-bold text-jj-text">{statusBanner.title}</h1>
         <p className="text-sm text-jj-muted">
           Order #{order.id.slice(-6).toUpperCase()} · {order.createdAt.toLocaleString("id-ID")}
         </p>
 
-        <div className="mt-3 flex items-center gap-1.5 rounded-xl bg-jj-gold-bg px-4 py-2 text-sm font-semibold text-jj-gold">
-          <Icon name="stars" filled className="!text-base" />
-          +{order.pointsEarned} Poin Joy ditambahkan ke akun Anda
-        </div>
+        {statusBanner.note && (
+          <p className="mt-1 max-w-md text-sm text-jj-muted">{statusBanner.note}</p>
+        )}
+
+        {order.status === "PAID" && (
+          <div className="mt-3 flex items-center gap-1.5 rounded-xl bg-jj-gold-bg px-4 py-2 text-sm font-semibold text-jj-gold">
+            <Icon name="stars" filled className="!text-base" />
+            +{order.pointsEarned} Poin Joy ditambahkan ke akun Anda
+          </div>
+        )}
       </div>
 
       <div className="jj-card flex flex-col gap-4 p-5">
@@ -81,7 +103,6 @@ export default async function OrderConfirmationPage({
 
         <div className="flex flex-col gap-1.5 text-sm">
           <Row label="Subtotal" value={formatRupiah(order.subtotal)} />
-          <Row label="Pengiriman" value={formatRupiah(order.shippingFee)} />
           {order.memberDiscount > 0 && (
             <Row label="Diskon Member" value={`- ${formatRupiah(order.memberDiscount)}`} />
           )}
@@ -105,8 +126,8 @@ export default async function OrderConfirmationPage({
 
         <div className="grid grid-cols-1 gap-3 border-t border-jj-border pt-4 text-sm sm:grid-cols-2">
           <div>
-            <p className="text-xs text-jj-muted">Metode Pengiriman</p>
-            <p className="font-medium text-jj-text">{deliveryLabel}</p>
+            <p className="text-xs text-jj-muted">Pengambilan</p>
+            <p className="font-medium text-jj-text">Ambil Sendiri di Gerai</p>
           </div>
           <div>
             <p className="text-xs text-jj-muted">Metode Pembayaran</p>
@@ -119,6 +140,18 @@ export default async function OrderConfirmationPage({
             </div>
           )}
         </div>
+
+        {order.paymentProofUrl && (
+          <div className="border-t border-jj-border pt-4">
+            <p className="mb-2 text-xs text-jj-muted">Bukti Pembayaran yang Anda Upload</p>
+            {/* eslint-disable-next-line @next/next/no-img-element -- external Blob storage URL, not a local asset */}
+            <img
+              src={order.paymentProofUrl}
+              alt="Bukti pembayaran"
+              className="h-40 w-40 rounded-lg border border-jj-border object-cover"
+            />
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row">

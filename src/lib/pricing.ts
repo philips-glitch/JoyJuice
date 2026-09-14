@@ -29,25 +29,6 @@ export function cartSubtotal(lines: CartLineForPricing[]): number {
   return lines.reduce((sum, l) => sum + l.unitPrice * l.quantity, 0);
 }
 
-export const DELIVERY_OPTIONS = {
-  INSTANT_COURIER: {
-    GOSEND_GRAB: { label: "GoSend / Grab Instant", fee: 15_000, eta: "Estimasi 45–60 Menit" },
-    FLEET: { label: "Joy & Juice Express Fleet", fee: 12_000, eta: "Slot Jam 14:00–16:00" },
-  },
-  PICKUP: {
-    STORE: { label: "Ambil di Gerai Terdekat", fee: 0, eta: "Siap diambil dalam 20 menit" },
-  },
-} as const;
-
-export function shippingFeeFor(
-  deliveryMethod: "INSTANT_COURIER" | "PICKUP",
-  deliveryOption: string,
-): number {
-  if (deliveryMethod === "PICKUP") return 0;
-  const options = DELIVERY_OPTIONS.INSTANT_COURIER as Record<string, { fee: number }>;
-  return options[deliveryOption]?.fee ?? 0;
-}
-
 /** Flat member discount granted at checkout based on tier. */
 export function memberDiscountFor(tier: Tier, tierConfig: TierConfigMap): number {
   return tierConfig[tier].flatDiscount;
@@ -75,11 +56,11 @@ export function formatRupiah(amount: number): string {
 /**
  * Full order total breakdown, shared by the client-side live preview and the
  * server action that actually places the order (same pure function, two
- * call sites — keeps the numbers guaranteed to match).
+ * call sites — keeps the numbers guaranteed to match). There's no shipping
+ * fee — Joy & Juice is pickup-only, no delivery service.
  */
 export function computeOrderTotals(params: {
   subtotal: number;
-  shippingFee: number;
   tier: Tier;
   tierConfig: TierConfigMap;
   pointsToRedeem: number;
@@ -89,13 +70,12 @@ export function computeOrderTotals(params: {
   const pointsDiscount = pointsDiscountFor(params.pointsToRedeem);
   const voucherDiscount = params.voucherDiscount ?? 0;
   const total = Math.max(
-    params.subtotal + params.shippingFee - memberDiscount - pointsDiscount - voucherDiscount,
+    params.subtotal - memberDiscount - pointsDiscount - voucherDiscount,
     0,
   );
 
   // Points are earned on product spend net of member discount, voucher
-  // discount, and any portion paid for with redeemed points (shipping is
-  // excluded).
+  // discount, and any portion paid for with redeemed points.
   const earnableBase = Math.max(
     params.subtotal - memberDiscount - pointsDiscount - voucherDiscount,
     0,

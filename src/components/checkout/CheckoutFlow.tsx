@@ -1,6 +1,13 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import {
+  useActionState,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+  type ChangeEvent,
+} from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { Tier } from "@prisma/client";
@@ -8,28 +15,27 @@ import {
   removeCartItemAction,
   updateCartItemQuantityAction,
 } from "@/app/actions/cart-actions";
-import { applyVoucherAction, placeOrderAction } from "@/app/actions/checkout-actions";
-import { OrderSummary } from "@/components/checkout/OrderSummary";
 import {
-  DELIVERY_OPTIONS,
-  cartSubtotal,
-  computeOrderTotals,
-  formatRupiah,
-  shippingFeeFor,
-} from "@/lib/pricing";
+  applyVoucherAction,
+  placeOrderAction,
+  type PlaceOrderFormState,
+} from "@/app/actions/checkout-actions";
+import { OrderSummary } from "@/components/checkout/OrderSummary";
+import { cartSubtotal, computeOrderTotals, formatRupiah } from "@/lib/pricing";
 import { REDEEM_BLOCK_SIZE, type TierConfigMap } from "@/lib/tiers";
 import { labelFor, ICE_LEVELS, SWEETNESS_LEVELS } from "@/lib/menu-options";
 import { Icon } from "@/components/Icon";
 import { ProductImage } from "@/components/ProductImage";
 import type { CheckoutCartItem } from "@/lib/checkout-types";
 
-type DeliveryMethod = "INSTANT_COURIER" | "PICKUP";
 type PaymentMethod = "QRIS" | "VIRTUAL_ACCOUNT" | "MANUAL_TRANSFER";
+
+const MAX_PROOF_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_PROOF_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 const STEPS = [
   { n: 1, label: "Keranjang" },
-  { n: 2, label: "Pengiriman" },
-  { n: 3, label: "Pembayaran & Poin" },
+  { n: 2, label: "Pembayaran" },
 ] as const;
 
 export function CheckoutFlow({
@@ -42,14 +48,10 @@ export function CheckoutFlow({
   tierConfig: TierConfigMap;
 }) {
   const router = useRouter();
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step, setStep] = useState<1 | 2>(1);
 
-  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("INSTANT_COURIER");
-  const [deliveryOption, setDeliveryOption] = useState<string>("GOSEND_GRAB");
-  const [address, setAddress] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
-  const [driverNote, setDriverNote] = useState("");
-
+  const [note, setNote] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("QRIS");
   const [redeemPoints, setRedeemPoints] = useState(false);
 
@@ -60,26 +62,37 @@ export function CheckoutFlow({
   const [voucherError, setVoucherError] = useState<string | null>(null);
   const [voucherPending, startVoucherTransition] = useTransition();
 
+  const [proofFile, setProofFile] = useState<File | null>(null);
+  const [proofPreviewUrl, setProofPreviewUrl] = useState<string | null>(null);
+  const [proofError, setProofError] = useState<string | null>(null);
+
   const [pending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
+
+  const [state, formAction, formPending] = useActionState<PlaceOrderFormState, FormData>(
+    placeOrderAction,
+    undefined,
+  );
+
+  useEffect(() => {
+    return () => {
+      if (proofPreviewUrl) URL.revokeObjectURL(proofPreviewUrl);
+    };
+  }, [proofPreviewUrl]);
 
   const tierInfo = tierConfig[user.tier];
   const subtotal = cartSubtotal(items);
-  const shippingFee =
-    step >= 2 ? shippingFeeFor(deliveryMethod, deliveryOption) : 0;
   const pointsToRedeem = redeemPoints && user.points >= REDEEM_BLOCK_SIZE ? REDEEM_BLOCK_SIZE : 0;
 
   const totals = useMemo(
     () =>
       computeOrderTotals({
         subtotal,
-        shippingFee,
         tier: user.tier,
         tierConfig,
         pointsToRedeem,
         voucherDiscount: appliedVoucher?.discountAmount ?? 0,
       }),
-    [subtotal, shippingFee, user.tier, tierConfig, pointsToRedeem, appliedVoucher],
+    [subtotal, user.tier, tierConfig, pointsToRedeem, appliedVoucher],
   );
 
   function handleApplyVoucher() {
@@ -117,25 +130,25 @@ export function CheckoutFlow({
     });
   }
 
-  function handlePlaceOrder() {
-    setError(null);
-    startTransition(async () => {
-      try {
-        const { orderId } = await placeOrderAction({
-          deliveryMethod,
-          deliveryOption,
-          address,
-          whatsapp,
-          driverNote,
-          paymentMethod,
-          redeemPoints,
-          voucherCode: appliedVoucher?.code,
-        });
-        router.push(`/orders/${orderId}`);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Gagal memproses pesanan.");
-      }
-    });
+  function handleProofChange(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null;
+    setProofError(null);
+    setProofPreviewUrl(null);
+    setProofFile(null);
+
+    if (!file) return;
+    if (!ALLOWED_PROOF_TYPES.includes(file.type)) {
+      setProofError("File harus berupa gambar (JPG, PNG, atau WEBP).");
+      e.target.value = "";
+      return;
+    }
+    if (file.size > MAX_PROOF_SIZE) {
+      setProofError("Ukuran file maksimal 5MB.");
+      e.target.value = "";
+      return;
+    }
+    setProofFile(file);
+    setProofPreviewUrl(URL.createObjectURL(file));
   }
 
   return (
@@ -236,163 +249,126 @@ export function CheckoutFlow({
                 onClick={() => setStep(2)}
                 className="jj-btn-primary mt-2 self-end rounded-full px-6 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
               >
-                Lanjut ke Pengiriman →
+                Lanjut ke Pembayaran →
               </button>
             </div>
           )}
 
           {step === 2 && (
-            <div className="jj-card flex flex-col gap-5 p-5">
-              <h2 className="flex items-center gap-2 font-semibold text-jj-text">
-                <Icon name="local_shipping" className="text-primary" /> Metode Pengiriman
-              </h2>
-
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setDeliveryMethod("INSTANT_COURIER");
-                    setDeliveryOption("GOSEND_GRAB");
-                  }}
-                  className={`rounded-xl border px-3 py-2 text-sm font-medium ${
-                    deliveryMethod === "INSTANT_COURIER"
-                      ? "border-jj-orange bg-orange-50 text-jj-orange-dark"
-                      : "border-jj-border text-jj-muted"
-                  } flex items-center justify-center gap-1.5`}
-                >
-                  <Icon name="two_wheeler" className="!text-base" /> Delivery Kurir Instan
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setDeliveryMethod("PICKUP");
-                    setDeliveryOption("STORE");
-                  }}
-                  className={`rounded-xl border px-3 py-2 text-sm font-medium ${
-                    deliveryMethod === "PICKUP"
-                      ? "border-jj-orange bg-orange-50 text-jj-orange-dark"
-                      : "border-jj-border text-jj-muted"
-                  } flex items-center justify-center gap-1.5`}
-                >
-                  <Icon name="storefront" className="!text-base" /> Ambil di Gerai (Pickup)
-                </button>
+            <form action={formAction} className="jj-card flex flex-col gap-5 p-5">
+              <div className="rounded-xl border border-sky-200 bg-sky-50 p-3 text-xs text-sky-800">
+                <p className="flex items-center gap-1.5 font-semibold">
+                  <Icon name="storefront" className="!text-base" /> Ambil Sendiri di Gerai
+                </p>
+                <p className="mt-1">
+                  Joy &amp; Juice belum menyediakan layanan pengiriman — semua pesanan diambil
+                  sendiri di gerai setelah pembayaran diverifikasi.
+                </p>
               </div>
-
-              {deliveryMethod === "INSTANT_COURIER" ? (
-                <div className="flex flex-col gap-2">
-                  {Object.entries(DELIVERY_OPTIONS.INSTANT_COURIER).map(([key, opt]) => (
-                    <label
-                      key={key}
-                      className={`flex cursor-pointer items-center justify-between rounded-xl border p-3 text-sm ${
-                        deliveryOption === key
-                          ? "border-jj-orange bg-orange-50"
-                          : "border-jj-border"
-                      }`}
-                    >
-                      <span className="flex items-center gap-2">
-                        <input
-                          type="radio"
-                          name="deliveryOption"
-                          checked={deliveryOption === key}
-                          onChange={() => setDeliveryOption(key)}
-                        />
-                        <span>
-                          <span className="block font-semibold text-jj-text">{opt.label}</span>
-                          <span className="text-xs text-jj-muted">{opt.eta}</span>
-                        </span>
-                      </span>
-                      <span className="font-semibold text-jj-text">{formatRupiah(opt.fee)}</span>
-                    </label>
-                  ))}
-
-                  <label className="flex flex-col gap-1 text-xs font-semibold text-jj-text">
-                    Alamat Pengiriman Lengkap
-                    <textarea
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      rows={3}
-                      placeholder="Jl. Contoh No. 1, Patokan terdekat..."
-                      className="rounded-xl border border-jj-border px-3 py-2 text-sm font-normal text-jj-text"
-                    />
-                  </label>
-                </div>
-              ) : (
-                <div className="rounded-xl border border-jj-border p-3 text-sm">
-                  <p className="font-semibold text-jj-text">{DELIVERY_OPTIONS.PICKUP.STORE.label}</p>
-                  <p className="text-xs text-jj-muted">{DELIVERY_OPTIONS.PICKUP.STORE.eta}</p>
-                </div>
-              )}
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <label className="flex flex-col gap-1 text-xs font-semibold text-jj-text">
-                  Nomor WhatsApp Penerima
+                  Nomor WhatsApp
                   <input
+                    name="whatsapp"
                     value={whatsapp}
                     onChange={(e) => setWhatsapp(e.target.value)}
                     placeholder="+62 812-3456-7890"
+                    required
                     className="rounded-xl border border-jj-border px-3 py-2 text-sm font-normal text-jj-text"
                   />
                 </label>
                 <label className="flex flex-col gap-1 text-xs font-semibold text-jj-text">
-                  Catatan untuk Pengemudi / Barista
+                  Catatan Tambahan (opsional)
                   <input
-                    value={driverNote}
-                    onChange={(e) => setDriverNote(e.target.value)}
-                    placeholder="Tolong sediakan ice gel pack ekstra..."
+                    name="note"
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    placeholder="Contoh: ambil setelah jam 5 sore"
                     className="rounded-xl border border-jj-border px-3 py-2 text-sm font-normal text-jj-text"
                   />
                 </label>
               </div>
 
-              <div className="flex justify-between">
-                <button
-                  type="button"
-                  onClick={() => setStep(1)}
-                  className="rounded-full border border-jj-border px-5 py-2.5 text-sm font-semibold text-jj-muted"
-                >
-                  ← Kembali
-                </button>
-                <button
-                  type="button"
-                  disabled={!whatsapp.trim() || (deliveryMethod === "INSTANT_COURIER" && !address.trim())}
-                  onClick={() => setStep(3)}
-                  className="jj-btn-primary rounded-full px-6 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
-                >
-                  Lanjut ke Pembayaran →
-                </button>
+              <div>
+                <h2 className="mb-2 flex items-center gap-2 font-semibold text-jj-text">
+                  <Icon name="credit_card" className="text-primary" /> Metode Pembayaran
+                </h2>
+                <div className="flex flex-col gap-2">
+                  <PaymentOption
+                    id="QRIS"
+                    title="QRIS Instan (Gopay / OVO / ShopeePay / BCA Mobile)"
+                    desc="Scan QR lalu upload screenshot bukti bayar di bawah."
+                    badge="Instan"
+                    selected={paymentMethod === "QRIS"}
+                    onSelect={() => setPaymentMethod("QRIS")}
+                  />
+                  <PaymentOption
+                    id="VIRTUAL_ACCOUNT"
+                    title="Transfer Virtual Account (BCA, Mandiri, BRI, BNI)"
+                    desc="Transfer lalu upload bukti transfer di bawah."
+                    selected={paymentMethod === "VIRTUAL_ACCOUNT"}
+                    onSelect={() => setPaymentMethod("VIRTUAL_ACCOUNT")}
+                  />
+                  <PaymentOption
+                    id="MANUAL_TRANSFER"
+                    title="Transfer Bank Manual (PT Joy and Juice Indonesia)"
+                    desc="BCA 782-019-2811 a.n PT Joy and Juice Indonesia"
+                    selected={paymentMethod === "MANUAL_TRANSFER"}
+                    onSelect={() => setPaymentMethod("MANUAL_TRANSFER")}
+                  />
+                </div>
               </div>
-            </div>
-          )}
 
-          {step === 3 && (
-            <div className="jj-card flex flex-col gap-5 p-5">
-              <h2 className="flex items-center gap-2 font-semibold text-jj-text">
-                <Icon name="credit_card" className="text-primary" /> Metode Pembayaran
-              </h2>
+              <div className="rounded-xl border-2 border-dashed border-jj-orange/50 bg-orange-50/40 p-4">
+                <p className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-jj-text">
+                  <Icon name="upload_file" className="!text-base text-primary" /> Upload Bukti
+                  Pembayaran
+                </p>
+                <p className="mb-3 text-xs text-jj-muted">
+                  Admin akan memverifikasi bukti ini sebelum pesanan diproses dan poin
+                  ditambahkan ke akun Anda.
+                </p>
 
-              <div className="flex flex-col gap-2">
-                <PaymentOption
-                  id="QRIS"
-                  title="QRIS Instan (Gopay / OVO / ShopeePay / BCA Mobile)"
-                  desc="Kode QR dinamis ditampilkan setelah Anda konfirmasi pesanan."
-                  badge="Instan"
-                  selected={paymentMethod === "QRIS"}
-                  onSelect={() => setPaymentMethod("QRIS")}
-                />
-                <PaymentOption
-                  id="VIRTUAL_ACCOUNT"
-                  title="Transfer Virtual Account (BCA, Mandiri, BRI, BNI)"
-                  desc="Verifikasi otomatis dalam 24 jam."
-                  selected={paymentMethod === "VIRTUAL_ACCOUNT"}
-                  onSelect={() => setPaymentMethod("VIRTUAL_ACCOUNT")}
-                />
-                <PaymentOption
-                  id="MANUAL_TRANSFER"
-                  title="Transfer Bank Manual (PT Joy and Juice Indonesia)"
-                  desc="BCA 782-019-2811 a.n PT Joy and Juice Indonesia · Verifikasi Admin 5-15 mnt"
-                  selected={paymentMethod === "MANUAL_TRANSFER"}
-                  onSelect={() => setPaymentMethod("MANUAL_TRANSFER")}
-                />
+                {/* A single, always-mounted file input — swapping between two
+                    separate <input> elements based on state loses the
+                    browser's native file selection when React unmounts the
+                    first one, so only the surrounding label/preview content
+                    changes, never the input itself. */}
+                <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-jj-border bg-white p-3 text-xs text-jj-muted hover:border-jj-orange">
+                  {proofPreviewUrl ? (
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element -- local object URL preview, not a served asset */}
+                      <img
+                        src={proofPreviewUrl}
+                        alt="Preview bukti pembayaran"
+                        className="h-16 w-16 flex-shrink-0 rounded-lg border border-jj-border object-cover"
+                      />
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-semibold text-emerald-700">
+                          ✓ {proofFile?.name}
+                        </span>
+                        <span className="font-semibold text-jj-orange-dark underline">
+                          Ganti file
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex w-full flex-col items-center gap-1 py-4 text-center">
+                      <Icon name="add_photo_alternate" className="!text-2xl text-jj-orange" />
+                      Klik untuk pilih gambar (JPG/PNG/WEBP, maks 5MB)
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    name="paymentProof"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={handleProofChange}
+                    required
+                    className="hidden"
+                  />
+                </label>
+                {proofError && <p className="mt-1.5 text-xs text-red-600">{proofError}</p>}
               </div>
 
               <div className="rounded-xl border border-jj-border p-3">
@@ -434,12 +410,14 @@ export function CheckoutFlow({
                 {voucherError && (
                   <p className="mt-1.5 text-xs text-red-600">{voucherError}</p>
                 )}
+                <input type="hidden" name="voucherCode" value={appliedVoucher?.code ?? ""} />
               </div>
 
               <div className="rounded-xl border border-jj-gold bg-jj-gold-bg p-3">
                 <label className="flex items-start gap-2 text-sm text-jj-gold">
                   <input
                     type="checkbox"
+                    name="redeemPoints"
                     checked={redeemPoints}
                     disabled={user.points < REDEEM_BLOCK_SIZE}
                     onChange={(e) => setRedeemPoints(e.target.checked)}
@@ -457,48 +435,44 @@ export function CheckoutFlow({
                 </label>
               </div>
 
-              {error && (
+              {state?.error && (
                 <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 border border-red-200">
-                  {error}
+                  {state.error}
                 </p>
               )}
 
               <div className="flex justify-between">
                 <button
                   type="button"
-                  onClick={() => setStep(2)}
+                  onClick={() => setStep(1)}
                   className="rounded-full border border-jj-border px-5 py-2.5 text-sm font-semibold text-jj-muted"
                 >
                   ← Kembali
                 </button>
                 <button
-                  type="button"
-                  disabled={pending}
-                  onClick={handlePlaceOrder}
+                  type="submit"
+                  disabled={formPending || !proofFile}
                   className="jj-btn-primary rounded-full px-6 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
                 >
-                  {pending ? (
+                  {formPending ? (
                     "Memproses..."
                   ) : (
                     <span className="flex items-center gap-1.5">
                       <Icon name="check_circle" filled className="!text-base" />
-                      Konfirmasi Pesanan &amp; Kumpulkan Poin
+                      Konfirmasi Pesanan
                     </span>
                   )}
                 </button>
               </div>
-            </div>
+            </form>
           )}
         </div>
 
         <OrderSummary
           items={items}
           subtotal={subtotal}
-          shippingFee={shippingFee}
           memberDiscount={totals.memberDiscount}
           tierLabel={tierInfo.label}
-          showShipping={step >= 2}
-          showPoints={step >= 3}
           pointsDiscount={totals.pointsDiscount}
           voucherDiscount={totals.voucherDiscount}
           voucherCode={appliedVoucher?.code}
@@ -516,6 +490,7 @@ function PaymentOption({
   badge,
   selected,
   onSelect,
+  id,
 }: {
   id: string;
   title: string;
@@ -531,7 +506,14 @@ function PaymentOption({
       }`}
     >
       <span className="flex items-start gap-2">
-        <input type="radio" name="paymentMethod" checked={selected} onChange={onSelect} className="mt-1" />
+        <input
+          type="radio"
+          name="paymentMethod"
+          value={id}
+          checked={selected}
+          onChange={onSelect}
+          className="mt-1"
+        />
         <span>
           <span className="block font-semibold text-jj-text">{title}</span>
           <span className="text-xs text-jj-muted">{desc}</span>
