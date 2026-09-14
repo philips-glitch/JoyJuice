@@ -7,6 +7,7 @@ import { Icon } from "@/components/Icon";
 export const ADMIN_NAV_ITEMS = [
   { href: "/admin", label: "Dashboard", icon: "dashboard", exact: true },
   { href: "/admin/orders", label: "Orders", icon: "receipt_long" },
+  { href: "/admin/products", label: "Products", icon: "local_drink" },
 ];
 
 export function AdminNav({ variant = "sidebar" }: { variant?: "sidebar" | "mobile" }) {
