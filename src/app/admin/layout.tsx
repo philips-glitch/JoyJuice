@@ -4,8 +4,7 @@ import { redirect } from "next/navigation";
 import { requireCurrentUser } from "@/lib/current-user";
 import { logoutAction } from "@/app/actions/auth-actions";
 import { Icon } from "@/components/Icon";
-
-const NAV_ITEMS = [{ href: "/admin/orders", label: "Orders", icon: "receipt_long" }];
+import { AdminNav } from "@/components/admin/AdminNav";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await requireCurrentUser();
@@ -25,18 +24,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             Admin
           </span>
         </div>
-        <nav className="flex flex-1 flex-col gap-1 p-3">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex items-center gap-2 rounded-lg px-3 py-2.5 font-label-lg text-label-lg text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-primary"
-            >
-              <Icon name={item.icon} />
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        <AdminNav />
         <div className="border-t border-outline-variant/60 p-3">
           <Link
             href="/menu"
@@ -58,8 +46,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </aside>
 
       <div className="flex min-h-screen flex-1 flex-col">
-        {/* Compact top bar for mobile, where the sidebar is hidden. */}
-        <header className="flex items-center justify-between border-b border-outline-variant/60 bg-surface-container-lowest px-4 py-3 md:hidden">
+        {/* Compact top bar + horizontal nav for mobile, where the sidebar is hidden. */}
+        <header className="flex items-center justify-between bg-surface-container-lowest px-4 pt-3 md:hidden">
           <div className="flex items-center gap-2">
             <Image src="/logo.png" alt="Joy & Juice" width={100} height={100} className="h-8 w-auto" />
             <span className="font-label-sm text-label-sm font-bold uppercase tracking-wider text-on-surface-variant">
@@ -85,6 +73,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             </form>
           </div>
         </header>
+        <div className="pt-3 md:hidden">
+          <AdminNav variant="mobile" />
+        </div>
 
         <main className="mx-auto w-full max-w-6xl flex-1 px-gutter py-gutter sm:px-gutter-lg">
           {children}
