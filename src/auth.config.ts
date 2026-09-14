@@ -13,13 +13,23 @@ export const authConfig = {
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      const publicPaths = ["/login", "/signup"];
-      const isPublicPath = publicPaths.some((p) => nextUrl.pathname.startsWith(p));
 
-      if (isPublicPath) {
+      // /login and /signup bounce a signed-in visitor to /menu instead.
+      const authPaths = ["/login", "/signup"];
+      const isAuthPath = authPaths.some((p) => nextUrl.pathname.startsWith(p));
+      if (isAuthPath) {
         if (isLoggedIn) return Response.redirect(new URL("/menu", nextUrl));
         return true;
       }
+
+      // The storefront's menu is browsable by anyone — registration is only
+      // required to actually transact (add to cart, checkout, etc.), which
+      // is enforced by requireCurrentUser() in those server actions/pages,
+      // not here. Exact match only: "/" and "/menu" themselves, not every
+      // path that happens to start with "/".
+      const publicExactPaths = ["/", "/menu"];
+      if (publicExactPaths.includes(nextUrl.pathname)) return true;
+
       return isLoggedIn;
     },
   },

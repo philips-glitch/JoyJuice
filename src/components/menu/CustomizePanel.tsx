@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { addToCartAction } from "@/app/actions/cart-actions";
 import { formatRupiah } from "@/lib/pricing";
 import { ICE_LEVELS, SWEETNESS_LEVELS } from "@/lib/menu-options";
@@ -9,7 +10,13 @@ import { Icon } from "@/components/Icon";
 import { ProductImage } from "@/components/ProductImage";
 import type { ProductWithOptions } from "@/lib/products";
 
-export function CustomizePanel({ product }: { product: ProductWithOptions | null }) {
+export function CustomizePanel({
+  product,
+  isLoggedIn,
+}: {
+  product: ProductWithOptions | null;
+  isLoggedIn: boolean;
+}) {
   const router = useRouter();
   const [sizeId, setSizeId] = useState(product?.sizes[0]?.id ?? "");
   const [iceLevel, setIceLevel] = useState<string>(ICE_LEVELS[1].id);
@@ -216,24 +223,44 @@ export function CustomizePanel({ product }: { product: ProductWithOptions | null
         </div>
 
         <div className="pt-3">
-          <button
-            type="button"
-            onClick={handleAdd}
-            disabled={pending}
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3.5 font-label-lg text-label-lg text-on-primary shadow-md transition-all hover:bg-primary-container active:scale-[.98] disabled:opacity-60"
-          >
-            <Icon name="shopping_cart_checkout" className="!text-base" />
-            <span>
-              {pending
-                ? "Menambahkan..."
-                : `Tambah ke Keranjang - ${formatRupiah(unitPrice)}`}
-            </span>
-          </button>
-          <p className="mt-2 text-center font-label-sm text-label-sm text-outline">
-            {justAdded
-              ? `✓ Ditambahkan! +${product.pointsBadge} poin akan masuk setelah pesanan selesai.`
-              : `Pembelian ini mengumpulkan ${product.pointsBadge} poin otomatis ke akun Anda`}
-          </p>
+          {isLoggedIn ? (
+            <>
+              <button
+                type="button"
+                onClick={handleAdd}
+                disabled={pending}
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3.5 font-label-lg text-label-lg text-on-primary shadow-md transition-all hover:bg-primary-container active:scale-[.98] disabled:opacity-60"
+              >
+                <Icon name="shopping_cart_checkout" className="!text-base" />
+                <span>
+                  {pending
+                    ? "Menambahkan..."
+                    : `Tambah ke Keranjang - ${formatRupiah(unitPrice)}`}
+                </span>
+              </button>
+              <p className="mt-2 text-center font-label-sm text-label-sm text-outline">
+                {justAdded
+                  ? `✓ Ditambahkan! +${product.pointsBadge} poin akan masuk setelah pesanan selesai.`
+                  : `Pembelian ini mengumpulkan ${product.pointsBadge} poin otomatis ke akun Anda`}
+              </p>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3.5 font-label-lg text-label-lg text-on-primary shadow-md transition-all hover:bg-primary-container active:scale-[.98]"
+              >
+                <Icon name="lock" className="!text-base" />
+                <span>Masuk untuk Memesan</span>
+              </Link>
+              <p className="mt-2 text-center font-label-sm text-label-sm text-outline">
+                Daftar gratis dan dapatkan {product.pointsBadge} poin dari pembelian ini.{" "}
+                <Link href="/signup" className="font-semibold text-primary hover:underline">
+                  Daftar sekarang
+                </Link>
+              </p>
+            </>
+          )}
         </div>
       </div>
     </aside>

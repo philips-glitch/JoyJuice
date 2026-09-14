@@ -2,14 +2,17 @@ import Link from "next/link";
 import Image from "next/image";
 import { getActiveProducts } from "@/lib/products";
 import { MenuBrowser } from "@/components/menu/MenuBrowser";
-import { requireCurrentUser } from "@/lib/current-user";
+import { getCurrentUser } from "@/lib/current-user";
 import { getTierConfigMap } from "@/lib/tier-config.server";
 import { Icon } from "@/components/Icon";
 
 export default async function MenuPage() {
-  const user = await requireCurrentUser();
+  // Anyone can browse the menu — registration is only required to actually
+  // transact (add to cart, checkout). getCurrentUser() returns null instead
+  // of redirecting, so the hero banner below has an explicit guest state.
+  const user = await getCurrentUser();
   const [products, tierConfig] = await Promise.all([getActiveProducts(), getTierConfigMap()]);
-  const tier = tierConfig[user.tier];
+  const tier = user ? tierConfig[user.tier] : null;
 
   return (
     <div className="flex flex-col gap-space-xl">
@@ -48,11 +51,11 @@ export default async function MenuPage() {
                 <span>Pesan Sekarang</span>
               </a>
               <Link
-                href="/loyalty"
+                href={user ? "/loyalty" : "/signup"}
                 className="flex items-center gap-2 rounded-lg bg-secondary px-5 py-3 font-label-lg text-label-lg text-white shadow-sm transition-all hover:bg-rose-700 active:scale-95"
               >
                 <Icon name="redeem" filled className="!text-sm" />
-                <span>Klaim Bonus Poin Member Baru</span>
+                <span>{user ? "Klaim Bonus Poin Member Baru" : "Daftar & Klaim Bonus Poin"}</span>
               </Link>
             </div>
           </div>
@@ -74,22 +77,48 @@ export default async function MenuPage() {
                 ))}
               </div>
               <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between rounded-lg border border-outline-variant bg-surface-container-lowest/95 p-3.5 shadow-sm backdrop-blur-md">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-700">
-                    <Icon name="nature_people" filled />
-                  </div>
-                  <div>
-                    <p className="font-label-md text-label-md text-on-surface">
-                      Member {tier.label} Active
-                    </p>
-                    <p className="font-body-sm text-body-sm text-outline">
-                      Cashback Poin {tier.multiplier}x Hari Ini
-                    </p>
-                  </div>
-                </div>
-                <span className="font-label-lg text-label-lg font-bold text-primary">
-                  Saldo {user.points.toLocaleString("id-ID")}
-                </span>
+                {user && tier ? (
+                  <>
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                        <Icon name="nature_people" filled />
+                      </div>
+                      <div>
+                        <p className="font-label-md text-label-md text-on-surface">
+                          Member {tier.label} Active
+                        </p>
+                        <p className="font-body-sm text-body-sm text-outline">
+                          Cashback Poin {tier.multiplier}x Hari Ini
+                        </p>
+                      </div>
+                    </div>
+                    <span className="font-label-lg text-label-lg font-bold text-primary">
+                      Saldo {user.points.toLocaleString("id-ID")}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                        <Icon name="person_add" filled />
+                      </div>
+                      <div>
+                        <p className="font-label-md text-label-md text-on-surface">
+                          Belum Punya Akun?
+                        </p>
+                        <p className="font-body-sm text-body-sm text-outline">
+                          Daftar untuk mulai pesan &amp; kumpulkan poin
+                        </p>
+                      </div>
+                    </div>
+                    <Link
+                      href="/signup"
+                      className="font-label-lg text-label-lg font-bold text-primary hover:underline"
+                    >
+                      Daftar →
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -97,7 +126,7 @@ export default async function MenuPage() {
       </section>
 
       <section id="kategori">
-        <MenuBrowser products={products} />
+        <MenuBrowser products={products} isLoggedIn={!!user} />
       </section>
 
       {/* LOYALTY CLUB CALLOUT BANNER */}

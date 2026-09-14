@@ -5,7 +5,13 @@ import { ProductCard } from "@/components/menu/ProductCard";
 import { CustomizePanel } from "@/components/menu/CustomizePanel";
 import type { ProductWithOptions } from "@/lib/products";
 
-export function MenuBrowser({ products }: { products: ProductWithOptions[] }) {
+export function MenuBrowser({
+  products,
+  isLoggedIn,
+}: {
+  products: ProductWithOptions[];
+  isLoggedIn: boolean;
+}) {
   const categories = useMemo(() => {
     const set = new Set(products.map((p) => p.category));
     return ["Semua Menu", ...Array.from(set)];
@@ -55,12 +61,13 @@ export function MenuBrowser({ products }: { products: ProductWithOptions[] }) {
               product={product}
               selected={product.id === selectedId}
               onSelect={() => setSelectedId(product.id)}
+              isLoggedIn={isLoggedIn}
             />
           ))}
         </div>
 
         <div className="lg:col-span-4">
-          <CustomizePanel product={selectedProduct} />
+          <CustomizePanel product={selectedProduct} isLoggedIn={isLoggedIn} />
         </div>
       </div>
     </div>

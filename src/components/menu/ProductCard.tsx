@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { addToCartAction } from "@/app/actions/cart-actions";
 import { formatRupiah } from "@/lib/pricing";
 import { Icon } from "@/components/Icon";
@@ -23,10 +24,12 @@ export function ProductCard({
   product,
   selected,
   onSelect,
+  isLoggedIn,
 }: {
   product: ProductWithOptions;
   selected: boolean;
   onSelect: () => void;
+  isLoggedIn: boolean;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -107,7 +110,15 @@ export function ProductCard({
               {formatRupiah(product.basePrice)}
             </span>
           </div>
-          {selected ? (
+          {!isLoggedIn ? (
+            <Link
+              href="/login"
+              className="flex items-center gap-1.5 rounded-lg border border-primary/30 bg-surface-container-low px-3.5 py-2 font-label-md text-label-md text-primary transition-colors hover:bg-primary hover:text-on-primary active:scale-95"
+            >
+              <Icon name="lock" className="!text-sm" />
+              <span>Masuk untuk Pesan</span>
+            </Link>
+          ) : selected ? (
             <button
               type="button"
               onClick={onSelect}
