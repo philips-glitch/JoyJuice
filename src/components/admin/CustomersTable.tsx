@@ -7,6 +7,7 @@ import { Icon } from "@/components/Icon";
 import type { TierConfigMap } from "@/lib/tiers";
 import {
   toggleCustomerSuspendedAction,
+  toggleCustomerVerifiedAction,
   deleteCustomerAction,
 } from "@/app/actions/admin/customers-actions";
 import type { Tier } from "@prisma/client";
@@ -20,6 +21,7 @@ type CustomerRow = {
   tier: Tier;
   points: number;
   suspended: boolean;
+  verified: boolean;
   createdAt: string;
 };
 
@@ -44,6 +46,21 @@ export function CustomersTable({
         router.refresh();
       } catch (err) {
         setError(err instanceof Error ? err.message : "Gagal mengubah status.");
+      } finally {
+        setPendingId(null);
+      }
+    });
+  }
+
+  function toggleVerified(id: string, next: boolean) {
+    setPendingId(id);
+    setError(null);
+    startTransition(async () => {
+      try {
+        await toggleCustomerVerifiedAction(id, next);
+        router.refresh();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Gagal mengubah status verifikasi.");
       } finally {
         setPendingId(null);
       }
@@ -81,6 +98,7 @@ export function CustomersTable({
               <th className="px-4 py-3 font-label-md text-label-md">Kontak</th>
               <th className="px-4 py-3 font-label-md text-label-md">Tier</th>
               <th className="px-4 py-3 font-label-md text-label-md">Poin</th>
+              <th className="px-4 py-3 font-label-md text-label-md">Verifikasi</th>
               <th className="px-4 py-3 font-label-md text-label-md">Status</th>
               <th className="px-4 py-3 font-label-md text-label-md">Aksi</th>
             </tr>
@@ -88,13 +106,16 @@ export function CustomersTable({
           <tbody className="divide-y divide-outline-variant/60">
             {customers.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-on-surface-variant">
+                <td colSpan={7} className="px-4 py-10 text-center text-on-surface-variant">
                   Belum ada pelanggan.
                 </td>
               </tr>
             )}
             {customers.map((c) => (
-              <tr key={c.id} className="hover:bg-surface-container-low">
+              <tr
+                key={c.id}
+                className={`hover:bg-surface-container-low ${!c.verified ? "bg-amber-50/60" : ""}`}
+              >
                 <td className="px-4 py-3">
                   <p className="font-medium text-on-surface">{c.name}</p>
                   <p className="text-on-surface-variant">@{c.username}</p>
@@ -114,6 +135,22 @@ export function CustomersTable({
                 </td>
                 <td className="px-4 py-3 font-semibold text-on-surface">
                   {c.points.toLocaleString("id-ID")}
+                </td>
+                <td className="px-4 py-3">
+                  <button
+                    type="button"
+                    disabled={pendingId === c.id}
+                    onClick={() => toggleVerified(c.id, !c.verified)}
+                    className={`flex items-center gap-1 rounded-full px-2.5 py-1 font-label-sm text-label-sm transition-colors disabled:opacity-50 ${
+                      c.verified
+                        ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
+                        : "bg-amber-100 text-amber-900 hover:bg-amber-200"
+                    }`}
+                    title="Klik untuk mengubah status verifikasi"
+                  >
+                    {!c.verified && <Icon name="hourglass_top" className="!text-sm" />}
+                    {c.verified ? "Terverifikasi" : "Menunggu Verifikasi"}
+                  </button>
                 </td>
                 <td className="px-4 py-3">
                   <button

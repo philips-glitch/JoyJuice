@@ -2,9 +2,11 @@
 
 import { z } from "zod";
 import bcrypt from "bcryptjs";
+import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { signIn, signOut } from "@/auth";
+import { AccountNotVerifiedError } from "@/lib/auth-errors";
 
 export type AuthFormState =
   | { error?: string; fieldErrors?: Record<string, string> }
@@ -66,22 +68,13 @@ export async function signupAction(
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
+  // Self-registered accounts wait for an admin to verify them in
+  // /admin/customers before they can log in — no auto-login here.
   await prisma.user.create({
-    data: { name, username, email, phone, passwordHash },
+    data: { name, username, email, phone, passwordHash, verified: false },
   });
 
-  try {
-    await signIn("credentials", {
-      identifier: username,
-      password,
-      redirectTo: "/menu",
-    });
-  } catch (err) {
-    if (err instanceof AuthError) {
-      return { error: "Akun berhasil dibuat, tapi auto-login gagal. Silakan login manual." };
-    }
-    throw err; // NEXT_REDIRECT — let Next.js handle the redirect
-  }
+  redirect("/login?registered=1");
 }
 
 export async function loginAction(
@@ -107,6 +100,12 @@ export async function loginAction(
       redirectTo: "/menu",
     });
   } catch (err) {
+    if (err instanceof AccountNotVerifiedError) {
+      return {
+        error:
+          "Akun Anda sedang menunggu verifikasi oleh admin. Silakan coba lagi setelah akun diverifikasi.",
+      };
+    }
     if (err instanceof AuthError) {
       return { error: "Username/email atau password salah." };
     }

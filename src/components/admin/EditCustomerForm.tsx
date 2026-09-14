@@ -21,6 +21,7 @@ export function EditCustomerForm({
     tier: Tier;
     points: number;
     suspended: boolean;
+    verified: boolean;
   };
   tierConfig: TierConfigMap;
 }) {
@@ -95,6 +96,25 @@ export function EditCustomerForm({
           </p>
         )}
       </div>
+
+      <label
+        className={`flex items-center gap-2 rounded-lg p-2 ${
+          !initialValues.verified ? "border border-amber-300 bg-amber-50" : ""
+        }`}
+      >
+        <input
+          type="checkbox"
+          name="verified"
+          defaultChecked={initialValues.verified}
+          className="h-4 w-4"
+        />
+        <span className="font-label-md text-label-md text-on-surface">
+          Akun terverifikasi (bisa login){" "}
+          {!initialValues.verified && (
+            <span className="font-bold text-amber-700">— sedang menunggu verifikasi</span>
+          )}
+        </span>
+      </label>
 
       <label className="flex items-center gap-2">
         <input

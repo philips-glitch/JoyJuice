@@ -78,6 +78,9 @@ export async function createCustomerAction(
       phone: phone || null,
       passwordHash,
       role: "CUSTOMER",
+      // Admin-created accounts are vouched for directly — no separate
+      // verification step, unlike self-registration via /signup.
+      verified: true,
     },
   });
 
@@ -92,6 +95,7 @@ const updateSchema = z.object({
   tier: z.enum(["BRONZE", "SILVER", "GOLD", "PLATINUM"]),
   pointsAdjustment: z.coerce.number().int(),
   suspended: z.coerce.boolean(),
+  verified: z.coerce.boolean(),
 });
 
 export async function updateCustomerAction(
@@ -108,6 +112,7 @@ export async function updateCustomerAction(
     tier: formData.get("tier"),
     pointsAdjustment: formData.get("pointsAdjustment") || 0,
     suspended: formData.get("suspended") === "on" || formData.get("suspended") === "true",
+    verified: formData.get("verified") === "on" || formData.get("verified") === "true",
   });
   if (!parsed.success) {
     const fieldErrors: Record<string, string> = {};
@@ -120,7 +125,7 @@ export async function updateCustomerAction(
     return { error: "Pelanggan tidak ditemukan." };
   }
 
-  const { name, email, phone, tier, pointsAdjustment, suspended } = parsed.data;
+  const { name, email, phone, tier, pointsAdjustment, suspended, verified } = parsed.data;
 
   if (email) {
     const emailTaken = await prisma.user.findUnique({ where: { email } });
@@ -159,6 +164,7 @@ export async function updateCustomerAction(
         points: newPoints,
         lifetimePoints: newLifetimePoints,
         suspended,
+        verified,
       },
     });
   });
@@ -175,6 +181,16 @@ export async function toggleCustomerSuspendedAction(id: string, suspended: boole
     throw new Error("Pelanggan tidak ditemukan.");
   }
   await prisma.user.update({ where: { id }, data: { suspended } });
+  revalidatePath("/admin/customers");
+}
+
+export async function toggleCustomerVerifiedAction(id: string, verified: boolean) {
+  await requireAdmin();
+  const customer = await prisma.user.findUnique({ where: { id } });
+  if (!customer || customer.role !== "CUSTOMER") {
+    throw new Error("Pelanggan tidak ditemukan.");
+  }
+  await prisma.user.update({ where: { id }, data: { verified } });
   revalidatePath("/admin/customers");
 }
 

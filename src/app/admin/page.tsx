@@ -21,6 +21,7 @@ export default async function AdminDashboardPage() {
     customerCount,
     pointsAgg,
     activeProductCount,
+    pendingVerificationCount,
     tierGroups,
     recentOrders,
     tierConfig,
@@ -30,6 +31,7 @@ export default async function AdminDashboardPage() {
     prisma.user.count({ where: { role: "CUSTOMER" } }),
     prisma.user.aggregate({ where: { role: "CUSTOMER" }, _sum: { points: true } }),
     prisma.product.count({ where: { active: true } }),
+    prisma.user.count({ where: { role: "CUSTOMER", verified: false } }),
     prisma.user.groupBy({
       by: ["tier"],
       where: { role: "CUSTOMER" },
@@ -74,6 +76,13 @@ export default async function AdminDashboardPage() {
       value: activeProductCount.toLocaleString("id-ID"),
       icon: "local_drink",
     },
+    {
+      label: "Menunggu Verifikasi",
+      value: pendingVerificationCount.toLocaleString("id-ID"),
+      icon: "hourglass_top",
+      href: pendingVerificationCount > 0 ? "/admin/customers" : undefined,
+      highlight: pendingVerificationCount > 0,
+    },
   ];
 
   return (
@@ -87,19 +96,36 @@ export default async function AdminDashboardPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        {stats.map((stat) => (
-          <div
-            key={stat.label}
-            className="flex flex-col gap-2 rounded-xl border border-outline-variant/70 bg-surface-container-lowest p-4 shadow-sm"
-          >
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <Icon name={stat.icon} />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        {stats.map((stat) => {
+          const cardClass = `flex flex-col gap-2 rounded-xl border p-4 shadow-sm transition-colors ${
+            stat.highlight
+              ? "border-amber-300 bg-amber-50 hover:bg-amber-100"
+              : "border-outline-variant/70 bg-surface-container-lowest"
+          }`;
+          const content = (
+            <>
+              <div
+                className={`flex h-9 w-9 items-center justify-center rounded-lg ${
+                  stat.highlight ? "bg-amber-200/70 text-amber-800" : "bg-primary/10 text-primary"
+                }`}
+              >
+                <Icon name={stat.icon} />
+              </div>
+              <span className="font-headline-sm text-headline-sm text-on-surface">{stat.value}</span>
+              <span className="font-label-sm text-label-sm text-on-surface-variant">{stat.label}</span>
+            </>
+          );
+          return stat.href ? (
+            <Link key={stat.label} href={stat.href} className={cardClass}>
+              {content}
+            </Link>
+          ) : (
+            <div key={stat.label} className={cardClass}>
+              {content}
             </div>
-            <span className="font-headline-sm text-headline-sm text-on-surface">{stat.value}</span>
-            <span className="font-label-sm text-label-sm text-on-surface-variant">{stat.label}</span>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="grid grid-cols-1 gap-space-lg lg:grid-cols-3">

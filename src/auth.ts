@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { authConfig } from "./auth.config";
+import { AccountNotVerifiedError } from "@/lib/auth-errors";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -31,6 +32,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // deliberately not revealing account status to an unauthenticated
         // login attempt.
         if (user.suspended) return null;
+
+        // Self-registered accounts start unverified and wait for an admin
+        // to approve them in /admin/customers. Unlike suspension, this is a
+        // legitimate state the person who just signed up should be told
+        // about plainly, so it throws a distinct error instead of failing
+        // silently like a wrong password.
+        if (!user.verified) throw new AccountNotVerifiedError();
 
         return { id: user.id, name: user.name, email: user.email };
       },

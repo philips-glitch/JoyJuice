@@ -50,6 +50,7 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
               tier: customer.tier,
               points: customer.points,
               suspended: customer.suspended,
+              verified: customer.verified,
             }}
             tierConfig={tierConfig}
           />

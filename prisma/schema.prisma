@@ -59,6 +59,7 @@ model User {
   tier           Tier      @default(BRONZE)
   bonusClaimed   Boolean   @default(false)
   suspended      Boolean   @default(false)
+  verified       Boolean   @default(true)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
