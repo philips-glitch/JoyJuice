@@ -166,7 +166,7 @@ export function CustomizePanel({
 
         <div>
           <label className="mb-2 block font-label-md text-label-md font-bold text-on-surface">
-            3. Rasa Manis Alami (Raw Honey / Dates)
+            3. Rasa Manis
           </label>
           <select
             value={sweetness}

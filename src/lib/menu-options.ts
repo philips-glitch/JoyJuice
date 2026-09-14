@@ -9,9 +9,9 @@ export const ICE_LEVELS = [
 ] as const;
 
 export const SWEETNESS_LEVELS = [
-  { id: "pure", label: "100% Pure (Tanpa Tambahan Manis)" },
-  { id: "less_sweet", label: "Sedikit Manis (Raw Honey)" },
-  { id: "normal_sweet", label: "Manis Normal (Dates)" },
+  { id: "pure", label: "100% Tanpa Gula" },
+  { id: "less_sweet", label: "Less Sugar" },
+  { id: "normal_sweet", label: "Normal Sugar" },
 ] as const;
 
 export type IceLevelId = (typeof ICE_LEVELS)[number]["id"];
