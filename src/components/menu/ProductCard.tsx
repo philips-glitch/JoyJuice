@@ -52,7 +52,7 @@ export function ProductCard({
       <button
         type="button"
         onClick={onCustomize}
-        className="relative h-48 overflow-hidden bg-surface-container-low text-left"
+        className="relative aspect-[3/5] overflow-hidden bg-surface-container-low text-left"
       >
         <div className="h-full w-full transition-transform duration-300 group-hover:scale-105">
           <ProductImage image={product.image} alt={product.name} emojiClassName="flex h-full items-center justify-center text-6xl" />
