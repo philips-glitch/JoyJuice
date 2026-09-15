@@ -76,24 +76,10 @@ export function ProductCard({
 
       <div className="flex flex-1 flex-col justify-between p-4">
         <button type="button" onClick={onCustomize} className="text-left">
-          <div className="mb-1 flex items-center justify-between">
-            <h3 className="font-headline-sm text-headline-sm text-on-surface">{product.name}</h3>
-            <div className="flex items-center gap-1 text-amber-500">
-              <Icon name="star" filled className="!text-sm" />
-              <span className="font-label-md text-label-md text-on-surface">
-                {product.rating.toFixed(1)}
-              </span>
-            </div>
-          </div>
-          <p className="mb-2 line-clamp-2 font-body-sm text-body-sm text-on-surface-variant">
-            {product.ingredients}
-          </p>
+          <h3 className="mb-1 font-headline-sm text-headline-sm text-on-surface">{product.name}</h3>
           <div className="mb-3 flex flex-wrap items-center gap-2">
             <span className="rounded bg-surface-container px-2 py-0.5 font-label-sm text-label-sm text-on-surface-variant">
               {product.calories} kkal
-            </span>
-            <span className="rounded bg-surface-container px-2 py-0.5 font-label-sm text-label-sm text-on-surface-variant">
-              {product.volumeMl} ml
             </span>
           </div>
         </button>
