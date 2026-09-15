@@ -53,7 +53,7 @@ export function MenuBrowser({
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-space-lg sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 sm:gap-space-lg md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {filtered.map((product) => (
           <ProductCard
             key={product.id}
