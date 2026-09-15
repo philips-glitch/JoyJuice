@@ -14,6 +14,7 @@ type VoucherRow = {
   id: string;
   code: string;
   discountAmount: number;
+  minQuantity: number | null;
   active: boolean;
   maxRedemptions: number | null;
   perUserLimit: number | null;
@@ -71,6 +72,7 @@ export function VouchersTable({ vouchers }: { vouchers: VoucherRow[] }) {
             <tr>
               <th className="px-4 py-3 font-label-md text-label-md">Kode</th>
               <th className="px-4 py-3 font-label-md text-label-md">Diskon</th>
+              <th className="px-4 py-3 font-label-md text-label-md">Syarat</th>
               <th className="px-4 py-3 font-label-md text-label-md">Limit</th>
               <th className="px-4 py-3 font-label-md text-label-md">Kedaluwarsa</th>
               <th className="px-4 py-3 font-label-md text-label-md">Terpakai</th>
@@ -81,7 +83,7 @@ export function VouchersTable({ vouchers }: { vouchers: VoucherRow[] }) {
           <tbody className="divide-y divide-outline-variant/60">
             {vouchers.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-on-surface-variant">
+                <td colSpan={8} className="px-4 py-10 text-center text-on-surface-variant">
                   Belum ada voucher.
                 </td>
               </tr>
@@ -91,6 +93,9 @@ export function VouchersTable({ vouchers }: { vouchers: VoucherRow[] }) {
                 <td className="px-4 py-3 font-mono font-semibold text-on-surface">{v.code}</td>
                 <td className="px-4 py-3 font-semibold text-on-surface">
                   {formatRupiah(v.discountAmount)}
+                </td>
+                <td className="px-4 py-3 text-on-surface-variant">
+                  {v.minQuantity ? `Min. ${v.minQuantity} botol` : "Tanpa syarat"}
                 </td>
                 <td className="px-4 py-3 text-on-surface-variant">
                   {v.maxRedemptions ? `${v.maxRedemptions}x total` : "Tanpa batas"}

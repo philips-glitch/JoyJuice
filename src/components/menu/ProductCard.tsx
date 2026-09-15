@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { addToCartAction } from "@/app/actions/cart-actions";
 import { formatRupiah } from "@/lib/pricing";
+import { DEFAULT_ICE_LEVEL } from "@/lib/menu-options";
 import { Icon } from "@/components/Icon";
 import { ProductImage } from "@/components/ProductImage";
 import type { ProductWithOptions } from "@/lib/products";
@@ -40,7 +41,7 @@ export function ProductCard({
         productId: product.id,
         quantity: 1,
         sizeId: product.sizes[0]?.id ?? "reg",
-        iceLevel: "normal",
+        iceLevel: DEFAULT_ICE_LEVEL,
         sweetness: "pure",
         toppingIds: [],
       });

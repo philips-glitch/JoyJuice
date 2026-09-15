@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireCurrentUser } from "@/lib/current-user";
 import { formatRupiah } from "@/lib/pricing";
-import { labelFor, ICE_LEVELS, SWEETNESS_LEVELS } from "@/lib/menu-options";
+import { labelFor, SWEETNESS_LEVELS } from "@/lib/menu-options";
 import { Icon } from "@/components/Icon";
 import { ProductImage } from "@/components/ProductImage";
 
@@ -89,8 +89,7 @@ export default async function OrderConfirmationPage({
                 <div>
                   <p className="font-medium text-jj-text">{item.name}</p>
                   <p className="text-xs text-jj-muted">
-                    {item.quantity}x · {labelFor(ICE_LEVELS, item.iceLevel)} ·{" "}
-                    {labelFor(SWEETNESS_LEVELS, item.sweetness)}
+                    {item.quantity}x · {labelFor(SWEETNESS_LEVELS, item.sweetness)}
                   </p>
                 </div>
               </div>

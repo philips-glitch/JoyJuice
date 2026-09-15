@@ -50,6 +50,7 @@ export default async function AdminLoyaltyPage() {
             id: v.id,
             code: v.code,
             discountAmount: v.discountAmount,
+            minQuantity: v.minQuantity,
             active: v.active,
             maxRedemptions: v.maxRedemptions,
             perUserLimit: v.perUserLimit,

@@ -19,11 +19,14 @@ const ALLOWED_PROOF_TYPES = ["image/jpeg", "image/png", "image/webp"];
 /** Validates a voucher code so the checkout UI can preview the discount before placing the order. */
 export async function applyVoucherAction(code: string) {
   const user = await requireCurrentUser();
-  const voucher = await validateVoucher(code, user.id);
-  if (!voucher) {
-    throw new Error("Kode voucher tidak valid atau sudah tidak berlaku.");
+  const items = await getCartItems(user.id);
+  const cartQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+
+  const result = await validateVoucher(code, user.id, cartQuantity);
+  if (!result.ok) {
+    throw new Error(result.message);
   }
-  return { code: voucher.code, discountAmount: voucher.discountAmount };
+  return { code: result.voucher.code, discountAmount: result.voucher.discountAmount };
 }
 
 /**
@@ -79,10 +82,15 @@ export async function placeOrderAction(
     redeemPoints && user.points >= REDEEM_BLOCK_SIZE ? REDEEM_BLOCK_SIZE : 0;
 
   // Voucher is re-validated server-side too — never trust the client's
-  // computed discount amount.
-  const voucher = voucherCodeInput ? await validateVoucher(voucherCodeInput, user.id) : null;
-  if (voucherCodeInput && !voucher) {
-    return { error: "Kode voucher tidak valid atau sudah tidak berlaku." };
+  // computed discount amount or the quantity check.
+  const cartQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+  let voucher = null;
+  if (voucherCodeInput) {
+    const result = await validateVoucher(voucherCodeInput, user.id, cartQuantity);
+    if (!result.ok) {
+      return { error: result.message };
+    }
+    voucher = result.voucher;
   }
 
   const { memberDiscount, pointsDiscount, voucherDiscount, total, pointsEarned } =

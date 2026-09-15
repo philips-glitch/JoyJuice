@@ -208,6 +208,10 @@ model Voucher {
   id             String    @id @default(cuid())
   code           String    @unique
   discountAmount Int
+  // Minimum total bottle quantity in the cart required to redeem this
+  // voucher (e.g. a "buy 15 get 1 free" promo priced as a flat discount
+  // equal to one bottle). Null means no minimum.
+  minQuantity    Int?
   active         Boolean   @default(true)
   maxRedemptions Int?
   perUserLimit   Int?

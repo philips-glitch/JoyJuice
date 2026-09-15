@@ -102,6 +102,7 @@ const voucherSchema = z.object({
     .max(30, "Kode maksimal 30 karakter")
     .regex(/^[A-Z0-9_-]+$/, "Hanya huruf, angka, - dan _"),
   discountAmount: z.coerce.number().int().min(1, "Harus lebih dari 0"),
+  minQuantity: z.coerce.number().int().min(1).optional().or(z.literal("")),
   maxRedemptions: z.coerce.number().int().min(1).optional().or(z.literal("")),
   perUserLimit: z.coerce.number().int().min(1).optional().or(z.literal("")),
   expiresAt: z.string().optional().or(z.literal("")),
@@ -122,6 +123,7 @@ export async function createVoucherAction(
   const parsed = voucherSchema.safeParse({
     code: formData.get("code"),
     discountAmount: formData.get("discountAmount"),
+    minQuantity: formData.get("minQuantity") || "",
     maxRedemptions: formData.get("maxRedemptions") || "",
     perUserLimit: formData.get("perUserLimit") || "",
     expiresAt: formData.get("expiresAt") || "",
@@ -141,6 +143,7 @@ export async function createVoucherAction(
     data: {
       code: parsed.data.code,
       discountAmount: parsed.data.discountAmount,
+      minQuantity: parseOptionalInt(formData.get("minQuantity")),
       maxRedemptions: parseOptionalInt(formData.get("maxRedemptions")),
       perUserLimit: parseOptionalInt(formData.get("perUserLimit")),
       expiresAt: parsed.data.expiresAt ? new Date(parsed.data.expiresAt) : null,
@@ -161,6 +164,7 @@ export async function updateVoucherAction(
   const parsed = voucherSchema.safeParse({
     code: formData.get("code"),
     discountAmount: formData.get("discountAmount"),
+    minQuantity: formData.get("minQuantity") || "",
     maxRedemptions: formData.get("maxRedemptions") || "",
     perUserLimit: formData.get("perUserLimit") || "",
     expiresAt: formData.get("expiresAt") || "",
@@ -184,6 +188,7 @@ export async function updateVoucherAction(
     data: {
       code: parsed.data.code,
       discountAmount: parsed.data.discountAmount,
+      minQuantity: parseOptionalInt(formData.get("minQuantity")),
       maxRedemptions: parseOptionalInt(formData.get("maxRedemptions")),
       perUserLimit: parseOptionalInt(formData.get("perUserLimit")),
       expiresAt: parsed.data.expiresAt ? new Date(parsed.data.expiresAt) : null,

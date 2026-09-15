@@ -30,6 +30,7 @@ export default async function EditVoucherPage({ params }: { params: Promise<{ id
           initialValues={{
             code: voucher.code,
             discountAmount: voucher.discountAmount,
+            minQuantity: voucher.minQuantity,
             maxRedemptions: voucher.maxRedemptions,
             perUserLimit: voucher.perUserLimit,
             expiresAt: voucher.expiresAt ? voucher.expiresAt.toISOString().slice(0, 10) : null,

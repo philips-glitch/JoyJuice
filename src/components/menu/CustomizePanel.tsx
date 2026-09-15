@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { addToCartAction } from "@/app/actions/cart-actions";
 import { formatRupiah } from "@/lib/pricing";
-import { ICE_LEVELS, SWEETNESS_LEVELS } from "@/lib/menu-options";
+import { DEFAULT_ICE_LEVEL, SWEETNESS_LEVELS } from "@/lib/menu-options";
 import { Icon } from "@/components/Icon";
 import { ProductImage } from "@/components/ProductImage";
 import type { ProductWithOptions } from "@/lib/products";
@@ -19,7 +19,6 @@ export function CustomizePanel({
 }) {
   const router = useRouter();
   const [sizeId, setSizeId] = useState(product?.sizes[0]?.id ?? "");
-  const [iceLevel, setIceLevel] = useState<string>(ICE_LEVELS[1].id);
   const [sweetness, setSweetness] = useState<string>(SWEETNESS_LEVELS[0].id);
   const [toppingIds, setToppingIds] = useState<string[]>([]);
   const [note, setNote] = useState("");
@@ -55,7 +54,7 @@ export function CustomizePanel({
         productId: product!.id,
         quantity: 1,
         sizeId,
-        iceLevel,
+        iceLevel: DEFAULT_ICE_LEVEL,
         sweetness,
         toppingIds,
         note,
@@ -139,34 +138,7 @@ export function CustomizePanel({
 
         <div>
           <label className="mb-2 block font-label-md text-label-md font-bold text-on-surface">
-            2. Level Dingin / Es
-          </label>
-          <div className="grid grid-cols-3 gap-2">
-            {ICE_LEVELS.map((lvl) => (
-              <label
-                key={lvl.id}
-                className={`cursor-pointer rounded-lg p-2 text-center font-body-sm text-body-sm transition-colors ${
-                  iceLevel === lvl.id
-                    ? "border-2 border-primary bg-orange-50/60 font-semibold text-primary"
-                    : "border border-outline-variant hover:bg-surface-container-low"
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="ice"
-                  className="sr-only"
-                  checked={iceLevel === lvl.id}
-                  onChange={() => setIceLevel(lvl.id)}
-                />
-                <span>{lvl.label}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <label className="mb-2 block font-label-md text-label-md font-bold text-on-surface">
-            3. Rasa Manis
+            2. Rasa Manis
           </label>
           <select
             value={sweetness}
@@ -184,7 +156,7 @@ export function CustomizePanel({
         {product.toppings.length > 0 && (
           <div>
             <label className="mb-2 block font-label-md text-label-md font-bold text-on-surface">
-              4. Tambahan Superfood / Topping
+              3. Tambahan Superfood / Topping
             </label>
             <div className="space-y-2">
               {product.toppings.map((t) => (

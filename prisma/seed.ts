@@ -228,6 +228,17 @@ const defaultTierConfig = [
   { tier: "PLATINUM" as const, label: "Platinum", minLifetimePoints: 800, multiplier: 2, flatDiscount: 20_000, color: "#7c3aed" },
 ];
 
+// "Beli 15 Gratis 1": every bottle is a flat Rp 15.000, so a free 250ml
+// bottle is represented as a Rp 15.000 discount, gated behind a minimum
+// cart quantity of 15 bottles.
+const defaultVouchers = [
+  {
+    code: "BELI15GRATIS1",
+    discountAmount: 15_000,
+    minQuantity: 15,
+  },
+];
+
 async function main() {
   console.log("Seeding tier config...");
   for (const t of defaultTierConfig) {
@@ -235,6 +246,15 @@ async function main() {
       where: { tier: t.tier },
       update: {},
       create: t,
+    });
+  }
+
+  console.log("Seeding vouchers...");
+  for (const v of defaultVouchers) {
+    await prisma.voucher.upsert({
+      where: { code: v.code },
+      update: {},
+      create: v,
     });
   }
 

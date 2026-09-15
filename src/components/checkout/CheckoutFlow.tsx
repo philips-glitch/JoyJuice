@@ -23,7 +23,7 @@ import {
 import { OrderSummary } from "@/components/checkout/OrderSummary";
 import { cartSubtotal, computeOrderTotals, formatRupiah } from "@/lib/pricing";
 import { REDEEM_BLOCK_SIZE, type TierConfigMap } from "@/lib/tiers";
-import { labelFor, ICE_LEVELS, SWEETNESS_LEVELS } from "@/lib/menu-options";
+import { labelFor, SWEETNESS_LEVELS } from "@/lib/menu-options";
 import { Icon } from "@/components/Icon";
 import { ProductImage } from "@/components/ProductImage";
 import type { CheckoutCartItem } from "@/lib/checkout-types";
@@ -202,7 +202,6 @@ export function CheckoutFlow({
                     <div>
                       <p className="text-sm font-semibold text-jj-text">{item.name}</p>
                       <p className="text-xs text-jj-muted">
-                        {labelFor(ICE_LEVELS, item.iceLevel)} ·{" "}
                         {labelFor(SWEETNESS_LEVELS, item.sweetness)}
                       </p>
                       <p className="text-xs font-semibold text-jj-orange-dark">

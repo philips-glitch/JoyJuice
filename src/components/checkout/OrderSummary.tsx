@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { formatRupiah } from "@/lib/pricing";
 import type { CheckoutCartItem } from "@/lib/checkout-types";
-import { labelFor, ICE_LEVELS, SWEETNESS_LEVELS } from "@/lib/menu-options";
+import { labelFor, SWEETNESS_LEVELS } from "@/lib/menu-options";
 import { Icon } from "@/components/Icon";
 import { ProductImage } from "@/components/ProductImage";
 
@@ -51,7 +51,6 @@ export function OrderSummary({
                 <p className="font-medium text-jj-text">{item.name}</p>
                 <p className="text-xs text-jj-muted">
                   {item.quantity} botol x {formatRupiah(item.unitPrice)} ·{" "}
-                  {labelFor(ICE_LEVELS, item.iceLevel)} ·{" "}
                   {labelFor(SWEETNESS_LEVELS, item.sweetness)}
                 </p>
               </div>

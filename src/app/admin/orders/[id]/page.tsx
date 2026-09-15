@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatRupiah } from "@/lib/pricing";
-import { labelFor, ICE_LEVELS, SWEETNESS_LEVELS } from "@/lib/menu-options";
+import { labelFor, SWEETNESS_LEVELS } from "@/lib/menu-options";
 import { Icon } from "@/components/Icon";
 import { ProductImage } from "@/components/ProductImage";
 import { OrderVerifyActions } from "@/components/admin/OrderVerifyActions";
@@ -94,8 +94,7 @@ export default async function AdminOrderDetailPage({
                     <div>
                       <p className="font-label-md text-label-md text-on-surface">{item.name}</p>
                       <p className="font-body-sm text-body-sm text-on-surface-variant">
-                        {item.quantity}x · {labelFor(ICE_LEVELS, item.iceLevel)} ·{" "}
-                        {labelFor(SWEETNESS_LEVELS, item.sweetness)}
+                        {item.quantity}x · {labelFor(SWEETNESS_LEVELS, item.sweetness)}
                       </p>
                     </div>
                   </div>

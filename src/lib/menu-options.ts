@@ -1,12 +1,13 @@
 export type SizeOption = { id: string; label: string; priceDelta: number };
 export type ToppingOption = { id: string; label: string; priceDelta: number };
 
-/** Ice level and sweetness are global options shared by every product. */
-export const ICE_LEVELS = [
-  { id: "normal", label: "Normal Es" },
-  { id: "less", label: "Sedikit Es" },
-  { id: "none", label: "Tanpa Es (Chilled)" },
-] as const;
+/**
+ * Ice level is no longer a customer-facing choice (every bottle is made the
+ * same way), but CartItem/OrderItem still have a NOT NULL `iceLevel` column
+ * for historical orders, so every new cart item is created with this fixed
+ * value rather than migrating the column away.
+ */
+export const DEFAULT_ICE_LEVEL = "normal";
 
 export const SWEETNESS_LEVELS = [
   { id: "pure", label: "100% Tanpa Gula" },
@@ -14,7 +15,6 @@ export const SWEETNESS_LEVELS = [
   { id: "normal_sweet", label: "Normal Sugar" },
 ] as const;
 
-export type IceLevelId = (typeof ICE_LEVELS)[number]["id"];
 export type SweetnessId = (typeof SWEETNESS_LEVELS)[number]["id"];
 
 export function parseSizes(json: string): SizeOption[] {

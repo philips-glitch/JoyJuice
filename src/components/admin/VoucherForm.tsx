@@ -13,6 +13,7 @@ const INPUT_CLASS =
 type VoucherFormValues = {
   code: string;
   discountAmount: number;
+  minQuantity: number | null;
   maxRedemptions: number | null;
   perUserLimit: number | null;
   expiresAt: string | null; // yyyy-mm-dd, for <input type="date">
@@ -75,6 +76,24 @@ export function VoucherForm({
             {fieldErrors.discountAmount}
           </span>
         )}
+      </label>
+
+      <label className="flex flex-col gap-1">
+        <span className="font-label-md text-label-md font-bold text-on-surface">
+          Minimal Jumlah Botol (opsional)
+        </span>
+        <input
+          name="minQuantity"
+          type="number"
+          min={1}
+          defaultValue={initialValues?.minQuantity ?? ""}
+          placeholder="Tanpa syarat minimal"
+          className={INPUT_CLASS}
+        />
+        <span className="font-label-sm text-label-sm text-on-surface-variant">
+          Untuk promo seperti &quot;beli 15 gratis 1&quot; — voucher hanya bisa dipakai kalau
+          jumlah botol di keranjang mencapai angka ini.
+        </span>
       </label>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
