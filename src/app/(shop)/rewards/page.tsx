@@ -1,7 +1,12 @@
 import { requireCurrentUser } from "@/lib/current-user";
 import { prisma } from "@/lib/prisma";
 import { RewardCard } from "@/components/rewards/RewardCard";
+import { TicketRewardCard } from "@/components/rewards/TicketRewardCard";
 import { Icon } from "@/components/Icon";
+
+// Only this specific reward gets the physical-coupon "ticket" styling —
+// everything else on this page keeps the plain RewardCard look.
+const TICKET_REWARD_NAME = "1 Botol Jus Gratis (Semua Varian) 250ml";
 
 export default async function RewardsPage() {
   const user = await requireCurrentUser();
@@ -25,10 +30,20 @@ export default async function RewardsPage() {
         </p>
       </div>
 
+      <div className="flex flex-col gap-4">
+        {rewards
+          .filter((reward) => reward.name === TICKET_REWARD_NAME)
+          .map((reward) => (
+            <TicketRewardCard key={reward.id} reward={reward} userPoints={user.points} />
+          ))}
+      </div>
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {rewards.map((reward) => (
-          <RewardCard key={reward.id} reward={reward} userPoints={user.points} />
-        ))}
+        {rewards
+          .filter((reward) => reward.name !== TICKET_REWARD_NAME)
+          .map((reward) => (
+            <RewardCard key={reward.id} reward={reward} userPoints={user.points} />
+          ))}
       </div>
     </div>
   );
