@@ -98,7 +98,7 @@ export function ProductCard({
           </div>
         </button>
 
-        <div className="flex items-center justify-between border-t border-outline-variant/60 pt-3">
+        <div className="flex flex-col gap-2 border-t border-outline-variant/60 pt-3">
           <div>
             <span className="block font-label-sm text-label-sm text-outline">Harga</span>
             <span className="font-headline-sm text-headline-sm font-bold text-on-surface">
@@ -108,7 +108,7 @@ export function ProductCard({
           {!isLoggedIn ? (
             <Link
               href="/login"
-              className="flex items-center gap-1.5 rounded-lg border border-primary/30 bg-surface-container-low px-3.5 py-2 font-label-md text-label-md text-primary transition-colors hover:bg-primary hover:text-on-primary active:scale-95"
+              className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-primary/30 bg-surface-container-low px-3.5 py-2 font-label-md text-label-md text-primary transition-colors hover:bg-primary hover:text-on-primary active:scale-95"
             >
               <Icon name="lock" className="!text-sm" />
               <span>Masuk untuk Pesan</span>
@@ -120,7 +120,7 @@ export function ProductCard({
                 onClick={onCustomize}
                 aria-label={`Kustomisasi ${product.name}`}
                 title="Kustomisasi"
-                className="flex items-center justify-center rounded-lg border border-primary/30 bg-surface-container-low p-2 text-primary transition-colors hover:bg-primary hover:text-on-primary active:scale-95"
+                className="flex flex-shrink-0 items-center justify-center rounded-lg border border-primary/30 bg-surface-container-low p-2 text-primary transition-colors hover:bg-primary hover:text-on-primary active:scale-95"
               >
                 <Icon name="tune" className="!text-sm" />
               </button>
@@ -128,7 +128,7 @@ export function ProductCard({
                 type="button"
                 onClick={quickAdd}
                 disabled={pending}
-                className="flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-container active:scale-95 disabled:opacity-50"
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-primary px-2 py-2 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-container active:scale-95 disabled:opacity-50"
               >
                 <Icon name="add_shopping_cart" className="!text-sm" />
                 <span>{pending ? "..." : "Tambah"}</span>
