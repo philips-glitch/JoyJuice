@@ -23,14 +23,12 @@ function tagChipClass(tag: string) {
 
 export function ProductCard({
   product,
-  selected,
-  onSelect,
   isLoggedIn,
+  onCustomize,
 }: {
   product: ProductWithOptions;
-  selected: boolean;
-  onSelect: () => void;
   isLoggedIn: boolean;
+  onCustomize: () => void;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -50,14 +48,10 @@ export function ProductCard({
   }
 
   return (
-    <article
-      className={`group flex flex-col overflow-hidden rounded-xl border shadow-sm transition-all hover:shadow-md ${
-        selected ? "border-primary" : "border-outline-variant/70"
-      } bg-surface-container-lowest`}
-    >
+    <article className="group flex flex-col overflow-hidden rounded-xl border border-outline-variant/70 bg-surface-container-lowest shadow-sm transition-all hover:shadow-md">
       <button
         type="button"
-        onClick={onSelect}
+        onClick={onCustomize}
         className="relative h-48 overflow-hidden bg-surface-container-low text-left"
       >
         <div className="h-full w-full transition-transform duration-300 group-hover:scale-105">
@@ -81,7 +75,7 @@ export function ProductCard({
       </button>
 
       <div className="flex flex-1 flex-col justify-between p-4">
-        <button type="button" onClick={onSelect} className="text-left">
+        <button type="button" onClick={onCustomize} className="text-left">
           <div className="mb-1 flex items-center justify-between">
             <h3 className="font-headline-sm text-headline-sm text-on-surface">{product.name}</h3>
             <div className="flex items-center gap-1 text-amber-500">
@@ -119,25 +113,27 @@ export function ProductCard({
               <Icon name="lock" className="!text-sm" />
               <span>Masuk untuk Pesan</span>
             </Link>
-          ) : selected ? (
-            <button
-              type="button"
-              onClick={onSelect}
-              className="flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-container active:scale-95"
-            >
-              <Icon name="tune" className="!text-sm" />
-              <span>Kustomisasi</span>
-            </button>
           ) : (
-            <button
-              type="button"
-              onClick={quickAdd}
-              disabled={pending}
-              className="flex items-center gap-1.5 rounded-lg border border-primary/30 bg-surface-container-low px-3.5 py-2 font-label-md text-label-md text-primary transition-colors hover:bg-primary hover:text-on-primary active:scale-95 disabled:opacity-50"
-            >
-              <Icon name="add_shopping_cart" className="!text-sm" />
-              <span>{pending ? "..." : "Tambah"}</span>
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={onCustomize}
+                aria-label={`Kustomisasi ${product.name}`}
+                title="Kustomisasi"
+                className="flex items-center justify-center rounded-lg border border-primary/30 bg-surface-container-low p-2 text-primary transition-colors hover:bg-primary hover:text-on-primary active:scale-95"
+              >
+                <Icon name="tune" className="!text-sm" />
+              </button>
+              <button
+                type="button"
+                onClick={quickAdd}
+                disabled={pending}
+                className="flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-container active:scale-95 disabled:opacity-50"
+              >
+                <Icon name="add_shopping_cart" className="!text-sm" />
+                <span>{pending ? "..." : "Tambah"}</span>
+              </button>
+            </div>
           )}
         </div>
       </div>

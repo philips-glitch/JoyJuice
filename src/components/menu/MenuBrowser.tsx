@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { ProductCard } from "@/components/menu/ProductCard";
-import { CustomizePanel } from "@/components/menu/CustomizePanel";
+import { CustomizeModal } from "@/components/menu/CustomizeModal";
 import type { ProductWithOptions } from "@/lib/products";
 
 export function MenuBrowser({
@@ -18,14 +18,14 @@ export function MenuBrowser({
   }, [products]);
 
   const [activeCategory, setActiveCategory] = useState("Semua Menu");
-  const [selectedId, setSelectedId] = useState<string | null>(products[0]?.id ?? null);
+  const [modalProductId, setModalProductId] = useState<string | null>(null);
 
   const filtered =
     activeCategory === "Semua Menu"
       ? products
       : products.filter((p) => p.category === activeCategory);
 
-  const selectedProduct = products.find((p) => p.id === selectedId) ?? null;
+  const modalProduct = products.find((p) => p.id === modalProductId) ?? null;
 
   return (
     <div>
@@ -53,23 +53,22 @@ export function MenuBrowser({
         ))}
       </div>
 
-      <div className="grid grid-cols-1 items-start gap-gutter lg:grid-cols-12">
-        <div className="grid grid-cols-1 gap-space-lg md:grid-cols-2 lg:col-span-8">
-          {filtered.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              selected={product.id === selectedId}
-              onSelect={() => setSelectedId(product.id)}
-              isLoggedIn={isLoggedIn}
-            />
-          ))}
-        </div>
-
-        <div className="lg:col-span-4">
-          <CustomizePanel product={selectedProduct} isLoggedIn={isLoggedIn} />
-        </div>
+      <div className="grid grid-cols-1 gap-space-lg sm:grid-cols-2 lg:grid-cols-3">
+        {filtered.map((product) => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            isLoggedIn={isLoggedIn}
+            onCustomize={() => setModalProductId(product.id)}
+          />
+        ))}
       </div>
+
+      <CustomizeModal
+        product={modalProduct}
+        isLoggedIn={isLoggedIn}
+        onClose={() => setModalProductId(null)}
+      />
     </div>
   );
 }
