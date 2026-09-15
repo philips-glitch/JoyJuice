@@ -30,20 +30,16 @@ export default async function RewardsPage() {
         </p>
       </div>
 
-      <div className="flex flex-col gap-4">
-        {rewards
-          .filter((reward) => reward.name === TICKET_REWARD_NAME)
-          .map((reward) => (
-            <TicketRewardCard key={reward.id} reward={reward} userPoints={user.points} />
-          ))}
-      </div>
-
+      {/* Same 3-across grid for every reward — the ticket card is sized to
+          sit proportionally as one cell here, not stretch full width. */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {rewards
-          .filter((reward) => reward.name !== TICKET_REWARD_NAME)
-          .map((reward) => (
+        {rewards.map((reward) =>
+          reward.name === TICKET_REWARD_NAME ? (
+            <TicketRewardCard key={reward.id} reward={reward} userPoints={user.points} />
+          ) : (
             <RewardCard key={reward.id} reward={reward} userPoints={user.points} />
-          ))}
+          ),
+        )}
       </div>
     </div>
   );
