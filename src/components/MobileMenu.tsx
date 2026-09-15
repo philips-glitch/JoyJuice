@@ -46,6 +46,16 @@ export function MobileMenu({
                 <span className="font-bold">Points: {points.toLocaleString("id-ID")} pts</span>
               </div>
             )}
+            {isLoggedIn && (
+              <Link
+                href="/profile"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2 rounded-lg px-3 py-2 font-label-lg text-label-lg text-on-surface hover:bg-surface-container-low"
+              >
+                <Icon name="account_circle" className="!text-base" />
+                Profil Saya
+              </Link>
+            )}
             {LINKS.map((link) => (
               <Link
                 key={link.href}

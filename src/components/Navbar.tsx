@@ -88,19 +88,22 @@ export async function Navbar() {
             </Link>
 
             {user ? (
-              <div
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-bold text-on-primary"
+              <Link
+                href="/profile"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-bold text-on-primary transition-opacity hover:opacity-90"
                 title={user.name}
+                aria-label="Profil Saya"
               >
                 {initials}
-              </div>
+              </Link>
             ) : (
-              <button
+              <Link
+                href="/login"
                 aria-label="Profile"
                 className="rounded-full p-2 text-on-surface-variant transition-colors duration-150 hover:bg-surface-container-low"
               >
                 <Icon name="account_circle" />
-              </button>
+              </Link>
             )}
           </div>
 
