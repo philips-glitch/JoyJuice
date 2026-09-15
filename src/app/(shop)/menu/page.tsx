@@ -62,63 +62,99 @@ export default async function MenuPage() {
 
           <div className="relative lg:col-span-5">
             <div className="relative mx-auto overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-md">
-              <div className="flex h-80 w-full items-center justify-center gap-4 bg-gradient-to-br from-emerald-100 via-amber-50 to-rose-100 p-6">
+              <div className="relative flex h-80 w-full items-end justify-center gap-1.5 overflow-hidden bg-gradient-to-br from-amber-100 via-rose-50 to-emerald-50 p-3 pt-16 sm:gap-4 sm:p-6">
                 {[
-                  { src: "/products/mangga.jpg", alt: "Mangga", rotate: "-rotate-6" },
-                  { src: "/products/jambu-merah.jpg", alt: "Jambu Merah", rotate: "rotate-2" },
-                  { src: "/products/nanas-strawberry.jpg", alt: "Nanas + Strawberry", rotate: "-rotate-3" },
+                  {
+                    src: "/products/mangga.jpg",
+                    alt: "Mangga",
+                    label: "Mangga",
+                    tagClass: "bg-amber-400 text-amber-950",
+                  },
+                  {
+                    src: "/products/jambu-merah.jpg",
+                    alt: "Jambu Merah",
+                    label: "Jambu Merah",
+                    tagClass: "bg-rose-500 text-white",
+                  },
+                  {
+                    src: "/products/nanas-strawberry.jpg",
+                    alt: "Nanas + Strawberry",
+                    label: "Nanas + Strawberry",
+                    tagClass: "bg-orange-400 text-orange-950",
+                  },
                 ].map((photo) => (
-                  <div
-                    key={photo.src}
-                    className={`relative h-64 w-20 flex-shrink-0 overflow-hidden rounded-lg border-2 border-white shadow-lg sm:w-24 ${photo.rotate}`}
-                  >
-                    <Image src={photo.src} alt={photo.alt} fill sizes="120px" className="object-cover" />
+                  <div key={photo.src} className="relative flex flex-shrink-0 flex-col items-center gap-2">
+                    <span
+                      className={`-rotate-3 whitespace-nowrap rounded-full px-1.5 py-0.5 text-center text-[10px] font-bold shadow-sm sm:px-2.5 sm:py-1 sm:font-label-sm sm:text-label-sm ${photo.tagClass}`}
+                    >
+                      {photo.label}
+                    </span>
+                    <div className="relative h-48 w-16 overflow-hidden rounded-lg border-2 border-white shadow-lg sm:h-56 sm:w-24">
+                      <Image src={photo.src} alt={photo.alt} fill sizes="120px" className="object-cover" />
+                    </div>
                   </div>
                 ))}
               </div>
-              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between rounded-lg border border-outline-variant bg-surface-container-lowest/95 p-3.5 shadow-sm backdrop-blur-md">
-                {user && tier ? (
-                  <>
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-700">
-                        <Icon name="nature_people" filled />
+              <div className="flex flex-col">
+                <div className="flex items-center justify-between gap-3 p-3.5">
+                  {user && tier ? (
+                    <>
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                          <Icon name="nature_people" filled />
+                        </div>
+                        <div>
+                          <p className="font-label-md text-label-md text-on-surface">
+                            Member {tier.label} Active
+                          </p>
+                          <p className="font-body-sm text-body-sm text-outline">
+                            Cashback Poin {tier.multiplier}x Hari Ini
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-label-md text-label-md text-on-surface">
-                          Member {tier.label} Active
-                        </p>
-                        <p className="font-body-sm text-body-sm text-outline">
-                          Cashback Poin {tier.multiplier}x Hari Ini
-                        </p>
+                      <span className="h-8 w-px flex-shrink-0 bg-outline-variant" />
+                      <div className="flex flex-col items-end">
+                        <span className="font-label-sm text-label-sm text-outline">Saldo</span>
+                        <span className="font-headline-sm text-headline-sm font-bold text-primary">
+                          {user.points.toLocaleString("id-ID")}
+                        </span>
                       </div>
-                    </div>
-                    <span className="font-label-lg text-label-lg font-bold text-primary">
-                      Saldo {user.points.toLocaleString("id-ID")}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-700">
-                        <Icon name="person_add" filled />
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                          <Icon name="person_add" filled />
+                        </div>
+                        <div>
+                          <p className="font-label-md text-label-md text-on-surface">
+                            Belum Punya Akun?
+                          </p>
+                          <p className="font-body-sm text-body-sm text-outline">
+                            Daftar untuk mulai pesan &amp; kumpulkan poin
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-label-md text-label-md text-on-surface">
-                          Belum Punya Akun?
-                        </p>
-                        <p className="font-body-sm text-body-sm text-outline">
-                          Daftar untuk mulai pesan &amp; kumpulkan poin
-                        </p>
-                      </div>
-                    </div>
-                    <Link
-                      href="/signup"
-                      className="font-label-lg text-label-lg font-bold text-primary hover:underline"
-                    >
-                      Daftar →
-                    </Link>
-                  </>
-                )}
+                      <Link
+                        href="/signup"
+                        className="font-label-lg text-label-lg font-bold text-primary hover:underline"
+                      >
+                        Daftar →
+                      </Link>
+                    </>
+                  )}
+                </div>
+                <Link
+                  href="/"
+                  className="flex items-center gap-2 border-t border-outline-variant/60 bg-amber-50 px-3.5 py-2.5 text-amber-950 transition-colors hover:bg-amber-100"
+                >
+                  <Icon name="card_giftcard" filled className="!text-base text-amber-600" />
+                  <span className="font-body-sm text-body-sm">
+                    Kumpulkan poin mu sebanyak-banyaknya di{" "}
+                    <span className="font-bold underline underline-offset-2">joy-juice.vercel.app</span>
+                  </span>
+                  <Icon name="arrow_forward" className="!text-base ml-auto flex-shrink-0" />
+                </Link>
               </div>
             </div>
           </div>
