@@ -183,13 +183,26 @@ const RETIRED_PRODUCT_SLUGS = [
   "almond-creamy-protein",
 ];
 
+// Only "1 Botol Jus Gratis (Semua Varian)" is active — every other reward
+// below is kept in the catalog (for redemption history / referential
+// integrity) but deactivated so it no longer shows up on /rewards.
 const rewardItems = [
+  {
+    name: "1 Botol Jus Gratis (Semua Varian) 250ml",
+    description:
+      "Tukar 150 poin dengan 1 botol jus 250ml gratis — berlaku untuk semua varian rasa di menu.",
+    image: "🧃",
+    pointsCost: 150,
+    category: "Juice",
+    active: true,
+  },
   {
     name: "1 Botol Jus Cold-Pressed Favorit",
     description: "Tukar poin dengan 1 botol jus cold-pressed reguler pilihanmu, gratis.",
     image: "🧃",
     pointsCost: 500,
     category: "Juice",
+    active: false,
   },
   {
     name: "Gratis Ongkir Kurir Instan",
@@ -197,6 +210,7 @@ const rewardItems = [
     image: "🚴",
     pointsCost: 150,
     category: "Shipping",
+    active: false,
   },
   {
     name: "Upgrade Ukuran Large Gratis",
@@ -204,6 +218,7 @@ const rewardItems = [
     image: "⬆️",
     pointsCost: 100,
     category: "Upgrade",
+    active: false,
   },
   {
     name: "Boks Insulasi Dingin Eksklusif",
@@ -211,6 +226,7 @@ const rewardItems = [
     image: "🎒",
     pointsCost: 300,
     category: "Merchandise",
+    active: false,
   },
   {
     name: "Konsultasi Nutrisi 1-on-1",
@@ -218,6 +234,7 @@ const rewardItems = [
     image: "🩺",
     pointsCost: 800,
     category: "Wellness",
+    active: false,
   },
 ];
 
