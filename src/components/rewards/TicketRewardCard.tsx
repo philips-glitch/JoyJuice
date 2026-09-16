@@ -11,9 +11,9 @@ import { Icon } from "@/components/Icon";
  * free-bottle reward — everything else on /rewards still uses the plain
  * RewardCard. This renders the actual supplied ticket artwork
  * (public/rewards/voucher-gratis.png, native ratio 3:2) instead of a
- * CSS recreation, with the points cost overlaid in the stub's open
- * space. The artwork itself has no interactive area, so the redeem
- * button/states live in a slim action bar below it.
+ * CSS recreation. The artwork itself has no interactive area, so the
+ * points cost and the redeem button/states live in a slim action bar
+ * below it.
  */
 export function TicketRewardCard({
   reward,
@@ -52,9 +52,6 @@ export function TicketRewardCard({
           className="object-cover"
           priority
         />
-        <span className="absolute right-[6%] top-[35%] -rotate-3 rounded-full bg-white px-3 py-1.5 font-headline-sm text-lg font-black text-emerald-800 shadow-md sm:text-2xl">
-          {reward.pointsCost.toLocaleString("id-ID")} Poin
-        </span>
       </div>
 
       <div className="flex items-center justify-between gap-2 bg-emerald-900 px-3 py-2.5">
