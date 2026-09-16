@@ -61,8 +61,8 @@ export function TicketRewardCard({
         {error ? (
           <p className="font-body-sm text-xs text-rose-200">{error}</p>
         ) : (
-          <span className="font-label-md text-label-md font-semibold text-amber-100">
-            Tukar dengan poin Anda
+          <span className="font-headline-sm text-headline-sm font-bold text-amber-200">
+            {reward.pointsCost.toLocaleString("id-ID")} Poin
           </span>
         )}
         <button
