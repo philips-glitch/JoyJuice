@@ -12,14 +12,14 @@ import { Icon } from "@/components/Icon";
  * RewardCard. This renders the actual supplied ticket artwork
  * (public/rewards/voucher-gratis.png, native ratio 3:2) instead of a
  * CSS recreation. The artwork itself has no interactive area, so the
- * points cost and the redeem button/states live in a slim action bar
- * below it.
+ * reward's name/description, points cost, and the redeem button/states
+ * live in the panels below it.
  */
 export function TicketRewardCard({
   reward,
   userPoints,
 }: {
-  reward: { id: string; pointsCost: number };
+  reward: { id: string; name: string; description: string; pointsCost: number };
   userPoints: number;
 }) {
   const router = useRouter();
@@ -52,6 +52,11 @@ export function TicketRewardCard({
           className="object-cover"
           priority
         />
+      </div>
+
+      <div className="flex flex-col gap-1 bg-surface-container-lowest px-3 py-2.5">
+        <p className="font-label-md text-label-md font-bold text-on-surface">{reward.name}</p>
+        <p className="font-body-sm text-body-sm text-on-surface-variant">{reward.description}</p>
       </div>
 
       <div className="flex items-center justify-between gap-2 bg-emerald-900 px-3 py-2.5">
