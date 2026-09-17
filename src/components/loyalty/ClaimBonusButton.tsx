@@ -41,7 +41,7 @@ export function ClaimBonusButton({ claimed }: { claimed: boolean }) {
           "Memproses..."
         ) : (
           <>
-            <Icon name="redeem" filled className="!text-base" /> Klaim Bonus 100 Poin
+            <Icon name="redeem" filled className="!text-base" /> Klaim Bonus 50 Poin
           </>
         )}
       </button>

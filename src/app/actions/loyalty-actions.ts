@@ -6,8 +6,8 @@ import { requireCurrentUser } from "@/lib/current-user";
 import { tierForLifetimePoints } from "@/lib/tiers";
 import { getTierConfigMap } from "@/lib/tier-config.server";
 
-/** One-time welcome bonus: +100 points, claimable once per account. */
-const SIGNUP_BONUS_POINTS = 100;
+/** One-time welcome bonus: +50 points, claimable once per account. */
+const SIGNUP_BONUS_POINTS = 50;
 
 export async function claimSignupBonusAction() {
   const user = await requireCurrentUser();
