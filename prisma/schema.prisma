@@ -46,6 +46,11 @@ enum Role {
   ADMIN
 }
 
+enum RedemptionStatus {
+  PENDING
+  CLAIMED
+}
+
 model User {
   id             String    @id @default(cuid())
   name           String
@@ -184,11 +189,16 @@ model RewardItem {
 }
 
 model RewardRedemption {
-  id           String   @id @default(cuid())
+  id           String           @id @default(cuid())
   userId       String
   rewardItemId String
   pointsSpent  Int
-  createdAt    DateTime @default(now())
+  // Customer redeems immediately (points deducted right away); an admin
+  // then hands over the physical item in person and marks it claimed here
+  // — separate from the points transaction, which never reverses.
+  status       RedemptionStatus @default(PENDING)
+  claimedAt    DateTime?
+  createdAt    DateTime         @default(now())
 
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   rewardItem RewardItem @relation(fields: [rewardItemId], references: [id], onDelete: Cascade)

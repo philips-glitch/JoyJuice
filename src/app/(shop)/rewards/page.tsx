@@ -10,10 +10,17 @@ const TICKET_REWARD_NAME = "1 Botol Jus Gratis (Semua Varian) 250ml";
 
 export default async function RewardsPage() {
   const user = await requireCurrentUser();
-  const rewards = await prisma.rewardItem.findMany({
-    where: { active: true },
-    orderBy: { pointsCost: "asc" },
-  });
+  const [rewards, myRedemptions] = await Promise.all([
+    prisma.rewardItem.findMany({
+      where: { active: true },
+      orderBy: { pointsCost: "asc" },
+    }),
+    prisma.rewardRedemption.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      include: { rewardItem: { select: { name: true } } },
+    }),
+  ]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -41,6 +48,47 @@ export default async function RewardsPage() {
           ),
         )}
       </div>
+
+      {myRedemptions.length > 0 && (
+        <div className="jj-card flex flex-col gap-4 p-6">
+          <h2 className="font-semibold text-jj-text">Riwayat Penukaran</h2>
+          <div className="flex flex-col divide-y divide-jj-border">
+            {myRedemptions.map((r) => (
+              <div key={r.id} className="flex items-center justify-between gap-3 py-3.5 text-sm">
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full ${
+                      r.status === "CLAIMED"
+                        ? "bg-emerald-100 text-emerald-700"
+                        : "bg-amber-100 text-amber-700"
+                    }`}
+                  >
+                    <Icon name={r.status === "CLAIMED" ? "check_circle" : "hourglass_top"} filled />
+                  </span>
+                  <div>
+                    <p className="font-medium text-jj-text">{r.rewardItem.name}</p>
+                    <p className="text-xs text-jj-muted">{r.createdAt.toLocaleString("id-ID")}</p>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end gap-1">
+                  <span className="font-bold text-jj-text">
+                    -{r.pointsSpent.toLocaleString("id-ID")} pts
+                  </span>
+                  <span
+                    className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
+                      r.status === "CLAIMED"
+                        ? "bg-emerald-100 text-emerald-800"
+                        : "bg-amber-100 text-amber-900"
+                    }`}
+                  >
+                    {r.status === "CLAIMED" ? "Sudah Diklaim" : "Menunggu Klaim Admin"}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
