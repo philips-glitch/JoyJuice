@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { formatRupiah } from "@/lib/pricing";
 import type { CheckoutCartItem } from "@/lib/checkout-types";
 import { labelFor, SWEETNESS_LEVELS } from "@/lib/menu-options";
+import { MIN_SUBTOTAL_FOR_MEMBER_DISCOUNT } from "@/lib/tiers";
 import { Icon } from "@/components/Icon";
 import { ProductImage } from "@/components/ProductImage";
 
@@ -74,6 +75,13 @@ export function OrderSummary({
             value={`- ${formatRupiah(memberDiscount)}`}
             valueClass="text-jj-pink"
           />
+        )}
+        {memberDiscount === 0 && subtotal < MIN_SUBTOTAL_FOR_MEMBER_DISCOUNT && (
+          <p className="flex items-center gap-1 text-xs text-jj-muted">
+            <Icon name="sell" className="!text-sm" />
+            Diskon member {tierLabel} berlaku mulai belanja{" "}
+            {formatRupiah(MIN_SUBTOTAL_FOR_MEMBER_DISCOUNT)}
+          </p>
         )}
         {pointsDiscount > 0 && (
           <Row

@@ -51,6 +51,13 @@ export function nextTierInfo(tier: Tier, config: TierConfigMap) {
   return { tier: next, ...config[next] };
 }
 
+/**
+ * The flat member discount only applies from this subtotal upward. Without a
+ * floor, Platinum's Rp20.000 exceeds a single ~Rp15.000 bottle and the order
+ * total clamps to Rp0 — a top-tier member could take bottles for free.
+ */
+export const MIN_SUBTOTAL_FOR_MEMBER_DISCOUNT = 50_000;
+
 export const POINTS_PER_RUPIAH_SPENT = 1 / 1000; // 1 point per Rp 1.000 net spend
 export const RUPIAH_PER_POINT_REDEEMED = 100; // 1 point = Rp 100 off
 export const REDEEM_BLOCK_SIZE = 100; // points must be redeemed in blocks of 100

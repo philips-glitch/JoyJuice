@@ -1,5 +1,9 @@
 import type { Tier } from "@prisma/client";
-import { RUPIAH_PER_POINT_REDEEMED, type TierConfigMap } from "./tiers";
+import {
+  MIN_SUBTOTAL_FOR_MEMBER_DISCOUNT,
+  RUPIAH_PER_POINT_REDEEMED,
+  type TierConfigMap,
+} from "./tiers";
 import { parseSizes, parseToppings } from "./menu-options";
 
 export type CartLineForPricing = {
@@ -29,8 +33,13 @@ export function cartSubtotal(lines: CartLineForPricing[]): number {
   return lines.reduce((sum, l) => sum + l.unitPrice * l.quantity, 0);
 }
 
-/** Flat member discount granted at checkout based on tier. */
-export function memberDiscountFor(tier: Tier, tierConfig: TierConfigMap): number {
+/** Flat member discount granted at checkout based on tier, above a minimum spend. */
+export function memberDiscountFor(
+  tier: Tier,
+  tierConfig: TierConfigMap,
+  subtotal: number,
+): number {
+  if (subtotal < MIN_SUBTOTAL_FOR_MEMBER_DISCOUNT) return 0;
   return tierConfig[tier].flatDiscount;
 }
 
@@ -66,7 +75,7 @@ export function computeOrderTotals(params: {
   pointsToRedeem: number;
   voucherDiscount?: number;
 }) {
-  const memberDiscount = memberDiscountFor(params.tier, params.tierConfig);
+  const memberDiscount = memberDiscountFor(params.tier, params.tierConfig, params.subtotal);
   const pointsDiscount = pointsDiscountFor(params.pointsToRedeem);
   const voucherDiscount = params.voucherDiscount ?? 0;
   const total = Math.max(
