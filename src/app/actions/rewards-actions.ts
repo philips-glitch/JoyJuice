@@ -15,23 +15,36 @@ export async function redeemRewardAction(rewardItemId: string) {
     throw new Error("Poin Anda tidak cukup untuk menukar reward ini.");
   }
 
-  const newBalance = user.points - reward.pointsCost;
+  await prisma.$transaction(async (tx) => {
+    // The balance check above races: two concurrent redemptions can both pass
+    // it off the same read. This conditional decrement is the real guard —
+    // the second one matches zero rows and bails.
+    const { count } = await tx.user.updateMany({
+      where: { id: user.id, points: { gte: reward.pointsCost } },
+      data: { points: { decrement: reward.pointsCost } },
+    });
+    if (count === 0) {
+      throw new Error("Poin Anda tidak cukup untuk menukar reward ini.");
+    }
 
-  await prisma.$transaction([
-    prisma.rewardRedemption.create({
+    const { points: balanceAfter } = await tx.user.findUniqueOrThrow({
+      where: { id: user.id },
+      select: { points: true },
+    });
+
+    await tx.rewardRedemption.create({
       data: { userId: user.id, rewardItemId: reward.id, pointsSpent: reward.pointsCost },
-    }),
-    prisma.pointsTransaction.create({
+    });
+    await tx.pointsTransaction.create({
       data: {
         userId: user.id,
         type: "REDEEM",
         amount: -reward.pointsCost,
-        balanceAfter: newBalance,
+        balanceAfter,
         description: `Tukar poin: ${reward.name}`,
       },
-    }),
-    prisma.user.update({ where: { id: user.id }, data: { points: newBalance } }),
-  ]);
+    });
+  });
 
   revalidatePath("/rewards");
   revalidatePath("/loyalty");

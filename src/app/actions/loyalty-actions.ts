@@ -15,31 +15,42 @@ export async function claimSignupBonusAction() {
     throw new Error("Bonus poin sudah pernah diklaim.");
   }
 
-  const newLifetimePoints = user.lifetimePoints + SIGNUP_BONUS_POINTS;
-  const newPoints = user.points + SIGNUP_BONUS_POINTS;
   const tierConfig = await getTierConfigMap();
-  const newTier = tierForLifetimePoints(newLifetimePoints, tierConfig);
 
-  await prisma.$transaction([
-    prisma.pointsTransaction.create({
+  await prisma.$transaction(async (tx) => {
+    // bonusClaimed: false in the filter is what makes this one-shot — a second
+    // concurrent claim matches zero rows instead of writing a second ledger row.
+    const { count } = await tx.user.updateMany({
+      where: { id: user.id, bonusClaimed: false },
+      data: {
+        bonusClaimed: true,
+        points: { increment: SIGNUP_BONUS_POINTS },
+        lifetimePoints: { increment: SIGNUP_BONUS_POINTS },
+      },
+    });
+    if (count === 0) {
+      throw new Error("Bonus poin sudah pernah diklaim.");
+    }
+
+    const fresh = await tx.user.findUniqueOrThrow({
+      where: { id: user.id },
+      select: { points: true, lifetimePoints: true },
+    });
+
+    await tx.user.update({
+      where: { id: user.id },
+      data: { tier: tierForLifetimePoints(fresh.lifetimePoints, tierConfig) },
+    });
+    await tx.pointsTransaction.create({
       data: {
         userId: user.id,
         type: "BONUS",
         amount: SIGNUP_BONUS_POINTS,
-        balanceAfter: newPoints,
+        balanceAfter: fresh.points,
         description: "Bonus poin selamat datang member baru",
       },
-    }),
-    prisma.user.update({
-      where: { id: user.id },
-      data: {
-        points: newPoints,
-        lifetimePoints: newLifetimePoints,
-        tier: newTier,
-        bonusClaimed: true,
-      },
-    }),
-  ]);
+    });
+  });
 
   revalidatePath("/loyalty");
   revalidatePath("/menu");

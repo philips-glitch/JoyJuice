@@ -16,6 +16,10 @@ export type PlaceOrderFormState = { error?: string } | undefined;
 const MAX_PROOF_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_PROOF_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
+// Sentinel so the transaction's catch can tell a lost points race apart from a
+// genuine failure and answer with something the customer can act on.
+const INSUFFICIENT_POINTS = "INSUFFICIENT_POINTS";
+
 /** Validates a voucher code so the checkout UI can preview the discount before placing the order. */
 export async function applyVoucherAction(code: string) {
   const user = await requireCurrentUser();
@@ -155,7 +159,21 @@ export async function placeOrderAction(
       });
 
       if (pointsToRedeem > 0) {
-        const balanceAfterRedeem = user.points - pointsToRedeem;
+        // Conditional decrement, not a read-then-set: the balance read at the
+        // top of this action races against any other checkout or redemption.
+        const { count } = await tx.user.updateMany({
+          where: { id: user.id, points: { gte: pointsToRedeem } },
+          data: { points: { decrement: pointsToRedeem } },
+        });
+        if (count === 0) {
+          throw new Error(INSUFFICIENT_POINTS);
+        }
+
+        const { points: balanceAfterRedeem } = await tx.user.findUniqueOrThrow({
+          where: { id: user.id },
+          select: { points: true },
+        });
+
         await tx.pointsTransaction.create({
           data: {
             userId: user.id,
@@ -166,7 +184,6 @@ export async function placeOrderAction(
             description: `Ditukar untuk diskon ${pointsDiscount.toLocaleString("id-ID")} pada pesanan`,
           },
         });
-        await tx.user.update({ where: { id: user.id }, data: { points: balanceAfterRedeem } });
       }
 
       if (voucher) {
@@ -180,7 +197,10 @@ export async function placeOrderAction(
       return created;
     });
     orderId = order.id;
-  } catch {
+  } catch (err) {
+    if (err instanceof Error && err.message === INSUFFICIENT_POINTS) {
+      return { error: "Poin Anda sudah terpakai di transaksi lain. Muat ulang halaman dan coba lagi." };
+    }
     return { error: "Gagal memproses pesanan. Silakan coba lagi." };
   }
 
