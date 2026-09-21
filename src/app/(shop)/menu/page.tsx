@@ -144,17 +144,6 @@ export default async function MenuPage() {
                     </>
                   )}
                 </div>
-                <Link
-                  href="/"
-                  className="flex items-center gap-2 border-t border-outline-variant/60 bg-amber-50 px-3.5 py-2.5 text-amber-950 transition-colors hover:bg-amber-100"
-                >
-                  <Icon name="card_giftcard" filled className="!text-base text-amber-600" />
-                  <span className="font-body-sm text-body-sm">
-                    Kumpulkan poin mu sebanyak-banyaknya di{" "}
-                    <span className="font-bold underline underline-offset-2">joy-juice.vercel.app</span>
-                  </span>
-                  <Icon name="arrow_forward" className="!text-base ml-auto flex-shrink-0" />
-                </Link>
               </div>
             </div>
           </div>
