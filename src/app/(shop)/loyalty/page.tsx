@@ -1,8 +1,8 @@
 import { requireCurrentUser } from "@/lib/current-user";
 import { prisma } from "@/lib/prisma";
-import { nextTierInfo } from "@/lib/tiers";
 import { getTierConfigMap } from "@/lib/tier-config.server";
 import { ClaimBonusButton } from "@/components/loyalty/ClaimBonusButton";
+import { TierLadder } from "@/components/loyalty/TierLadder";
 import { Icon } from "@/components/Icon";
 
 const TX_LABELS: Record<string, { icon: string; label: string }> = {
@@ -16,18 +16,6 @@ export default async function LoyaltyPage() {
   const user = await requireCurrentUser();
   const tierConfig = await getTierConfigMap();
   const tierInfo = tierConfig[user.tier];
-  const next = nextTierInfo(user.tier, tierConfig);
-
-  const progress = next
-    ? Math.min(
-        100,
-        Math.round(
-          ((user.lifetimePoints - tierInfo.minLifetimePoints) /
-            (next.minLifetimePoints - tierInfo.minLifetimePoints)) *
-            100,
-        ),
-      )
-    : 100;
 
   const transactions = await prisma.pointsTransaction.findMany({
     where: { userId: user.id },
@@ -56,31 +44,11 @@ export default async function LoyaltyPage() {
         <ClaimBonusButton claimed={user.bonusClaimed} />
       </div>
 
-      <div className="jj-card flex flex-col gap-3 p-6">
-        <div className="flex items-center justify-between text-sm">
-          <span className="font-semibold text-jj-text">Progres Tier</span>
-          <span className="text-jj-muted">
-            {next
-              ? `${user.lifetimePoints - tierInfo.minLifetimePoints}/${
-                  next.minLifetimePoints - tierInfo.minLifetimePoints
-                } pts menuju ${next.label}`
-              : "Tier tertinggi tercapai 🎉"}
-          </span>
-        </div>
-        <div className="h-2.5 w-full overflow-hidden rounded-full bg-jj-bg">
-          <div
-            className="h-full rounded-full jj-btn-primary"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-        <div className="flex justify-between text-[11px] text-jj-muted">
-          {(["BRONZE", "SILVER", "GOLD", "PLATINUM"] as const).map((t) => (
-            <span key={t} className={user.tier === t ? "font-bold text-jj-orange-dark" : ""}>
-              {tierConfig[t].label}
-            </span>
-          ))}
-        </div>
-      </div>
+      <TierLadder
+        tier={user.tier}
+        lifetimePoints={user.lifetimePoints}
+        tierConfig={tierConfig}
+      />
 
       <div className="jj-card flex flex-col gap-4 p-6">
         <h2 className="font-semibold text-jj-text">Riwayat Poin</h2>
