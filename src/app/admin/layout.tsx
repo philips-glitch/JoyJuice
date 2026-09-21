@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { requireCurrentUser } from "@/lib/current-user";
+import { prisma } from "@/lib/prisma";
 import { logoutAction } from "@/app/actions/auth-actions";
 import { Icon } from "@/components/Icon";
 import { AdminNav } from "@/components/admin/AdminNav";
@@ -11,6 +12,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (user.role !== "ADMIN") {
     redirect("/menu");
   }
+
+  // Self-registered accounts can't log in until they're verified here, so the
+  // count rides along in the nav — otherwise people sit unapproved unseen.
+  const pendingVerification = await prisma.user.count({
+    where: { verified: false, role: "CUSTOMER" },
+  });
+  const badges = { "/admin/customers": pendingVerification };
 
   return (
     <div className="flex min-h-screen flex-1 bg-surface-container-low">
@@ -24,7 +32,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             Admin
           </span>
         </div>
-        <AdminNav />
+        <AdminNav badges={badges} />
         <div className="border-t border-outline-variant/60 p-3">
           <Link
             href="/menu"
@@ -74,7 +82,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </div>
         </header>
         <div className="pt-3 md:hidden">
-          <AdminNav variant="mobile" />
+          <AdminNav variant="mobile" badges={badges} />
         </div>
 
         <main className="mx-auto w-full max-w-6xl flex-1 px-gutter py-gutter sm:px-gutter-lg">

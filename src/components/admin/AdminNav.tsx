@@ -13,7 +13,13 @@ export const ADMIN_NAV_ITEMS = [
   { href: "/admin/redemptions", label: "Klaim Reward", icon: "redeem" },
 ];
 
-export function AdminNav({ variant = "sidebar" }: { variant?: "sidebar" | "mobile" }) {
+export function AdminNav({
+  variant = "sidebar",
+  badges,
+}: {
+  variant?: "sidebar" | "mobile";
+  badges?: Partial<Record<string, number>>;
+}) {
   const pathname = usePathname();
 
   if (variant === "mobile") {
@@ -21,6 +27,7 @@ export function AdminNav({ variant = "sidebar" }: { variant?: "sidebar" | "mobil
       <nav className="scrollbar-none flex items-center gap-2 overflow-x-auto border-b border-outline-variant/60 bg-surface-container-lowest px-3 pb-3 md:hidden">
         {ADMIN_NAV_ITEMS.map((item) => {
           const active = item.exact ? pathname === item.href : pathname?.startsWith(item.href);
+          const badge = badges?.[item.href];
           return (
             <Link
               key={item.href}
@@ -33,6 +40,7 @@ export function AdminNav({ variant = "sidebar" }: { variant?: "sidebar" | "mobil
             >
               <Icon name={item.icon} filled={active} className="!text-base" />
               {item.label}
+              {!!badge && <Badge count={badge} onPrimary={active} />}
             </Link>
           );
         })}
@@ -44,6 +52,7 @@ export function AdminNav({ variant = "sidebar" }: { variant?: "sidebar" | "mobil
     <nav className="flex flex-1 flex-col gap-1 p-3">
       {ADMIN_NAV_ITEMS.map((item) => {
         const active = item.exact ? pathname === item.href : pathname?.startsWith(item.href);
+        const badge = badges?.[item.href];
         return (
           <Link
             key={item.href}
@@ -56,9 +65,31 @@ export function AdminNav({ variant = "sidebar" }: { variant?: "sidebar" | "mobil
           >
             <Icon name={item.icon} filled={active} />
             {item.label}
+            {!!badge && <Badge count={badge} className="ml-auto" />}
           </Link>
         );
       })}
     </nav>
+  );
+}
+
+function Badge({
+  count,
+  className = "",
+  onPrimary = false,
+}: {
+  count: number;
+  className?: string;
+  onPrimary?: boolean;
+}) {
+  return (
+    <span
+      title={`${count} akun menunggu verifikasi`}
+      className={`flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 font-label-sm text-label-sm font-bold ${
+        onPrimary ? "bg-on-primary text-primary" : "bg-amber-100 text-amber-900"
+      } ${className}`}
+    >
+      {count}
+    </span>
   );
 }
