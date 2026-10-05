@@ -170,7 +170,26 @@ const products = [
     sizes: BOTTLE_250ML,
     toppings: NO_TOPPINGS,
   },
+  {
+    slug: "mango-sticky-rice",
+    name: "Mango Sticky Rice",
+    category: "Seasonal Menu",
+    description: "Mangga harum, ketan, santan kelapa",
+    ingredients: "Mangga harum, ketan, santan kelapa",
+    image: "/products/mangga.jpg",
+    basePrice: 20_000,
+    calories: 180,
+    volumeMl: 250,
+    rating: 4.8,
+    tag: "Seasonal",
+    pointsBadge: 20,
+    sizes: BOTTLE_250ML,
+    toppings: NO_TOPPINGS,
+  },
 ];
+
+// Menu tab order. Products above reference these by name.
+const categories = ["Seasonal Menu", "Buah & Sayur", "Buah Tropis", "Cia Seed Series"];
 
 // Slugs no longer part of the menu — deactivated (not deleted) below so any
 // past order history referencing them stays intact.
@@ -275,12 +294,26 @@ async function main() {
     });
   }
 
+  console.log("Seeding categories...");
+  const categoryIds = new Map<string, string>();
+  for (const [sortOrder, name] of categories.entries()) {
+    const c = await prisma.category.upsert({
+      where: { name },
+      update: {},
+      create: { name, sortOrder },
+    });
+    categoryIds.set(name, c.id);
+  }
+
   console.log("Seeding products...");
-  for (const p of products) {
+  for (const { category, ...p } of products) {
+    const categoryId = categoryIds.get(category);
+    if (!categoryId) throw new Error(`Unknown category "${category}" for ${p.slug}`);
+    const data = { ...p, categoryId };
     await prisma.product.upsert({
       where: { slug: p.slug },
-      update: p,
-      create: p,
+      update: data,
+      create: data,
     });
   }
 

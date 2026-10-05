@@ -5,9 +5,10 @@ import { ProductForm } from "@/components/admin/ProductForm";
 import { createProductAction } from "@/app/actions/admin/products-actions";
 
 export default async function NewProductPage() {
-  const categories = await prisma.product
-    .findMany({ distinct: ["category"], select: { category: true } })
-    .then((rows) => rows.map((r) => r.category));
+  const categories = await prisma.category.findMany({
+    orderBy: { sortOrder: "asc" },
+    select: { id: true, name: true, active: true },
+  });
 
   return (
     <div className="flex flex-col gap-space-lg">

@@ -28,7 +28,7 @@ const productSchema = z.object({
     .toLowerCase()
     .min(2, "Slug minimal 2 karakter")
     .regex(/^[a-z0-9-]+$/, "Slug hanya boleh huruf kecil, angka, dan tanda hubung"),
-  category: z.string().trim().min(2, "Kategori wajib diisi"),
+  categoryId: z.string().trim().min(1, "Kategori wajib dipilih"),
   description: z.string().trim().min(2, "Deskripsi wajib diisi"),
   ingredients: z.string().trim().min(2, "Bahan wajib diisi"),
   image: z.string().trim().min(1, "Gambar wajib diisi (path atau URL)"),
@@ -61,7 +61,7 @@ function extractInput(formData: FormData) {
   return {
     name: formData.get("name"),
     slug: formData.get("slug"),
-    category: formData.get("category"),
+    categoryId: formData.get("categoryId"),
     description: formData.get("description"),
     ingredients: formData.get("ingredients"),
     image: formData.get("image"),
@@ -92,6 +92,11 @@ export async function createProductAction(
     return { fieldErrors };
   }
 
+  const category = await prisma.category.findUnique({ where: { id: parsed.data.categoryId } });
+  if (!category) {
+    return { fieldErrors: { categoryId: "Kategori tidak ditemukan. Muat ulang halaman." } };
+  }
+
   const existing = await prisma.product.findUnique({ where: { slug: parsed.data.slug } });
   if (existing) {
     return { error: "Slug ini sudah dipakai produk lain. Gunakan slug yang berbeda." };
@@ -108,6 +113,7 @@ export async function createProductAction(
   });
 
   revalidatePath("/admin/products");
+  revalidatePath("/admin/categories");
   revalidatePath("/menu");
   redirect("/admin/products");
 }
@@ -128,6 +134,11 @@ export async function updateProductAction(
     return { fieldErrors };
   }
 
+  const category = await prisma.category.findUnique({ where: { id: parsed.data.categoryId } });
+  if (!category) {
+    return { fieldErrors: { categoryId: "Kategori tidak ditemukan. Muat ulang halaman." } };
+  }
+
   const existing = await prisma.product.findUnique({ where: { slug: parsed.data.slug } });
   if (existing && existing.id !== id) {
     return { error: "Slug ini sudah dipakai produk lain. Gunakan slug yang berbeda." };
@@ -145,6 +156,7 @@ export async function updateProductAction(
   });
 
   revalidatePath("/admin/products");
+  revalidatePath("/admin/categories");
   revalidatePath("/menu");
   redirect("/admin/products");
 }
@@ -153,6 +165,7 @@ export async function toggleProductActiveAction(id: string, active: boolean) {
   await requireAdmin();
   await prisma.product.update({ where: { id }, data: { active } });
   revalidatePath("/admin/products");
+  revalidatePath("/admin/categories");
   revalidatePath("/menu");
 }
 
@@ -170,5 +183,6 @@ export async function deleteProductAction(id: string) {
   await prisma.product.delete({ where: { id } });
 
   revalidatePath("/admin/products");
+  revalidatePath("/admin/categories");
   revalidatePath("/menu");
 }

@@ -79,7 +79,7 @@ model Product {
   id          String   @id @default(cuid())
   slug        String   @unique
   name        String
-  category    String
+  categoryId  String
   description String
   ingredients String
   image       String
@@ -94,8 +94,22 @@ model Product {
   active      Boolean  @default(true)
   createdAt   DateTime @default(now())
 
+  category   Category   @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   cartItems  CartItem[]
   orderItems OrderItem[]
+}
+
+// Menu categories shown as tabs on /menu. Hiding one (active = false) takes
+// all its products off the menu without touching each product's own flag;
+// deleting is only allowed once no product points at it (Restrict above).
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  sortOrder Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  products Product[]
 }
 
 model CartItem {

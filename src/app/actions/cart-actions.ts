@@ -18,8 +18,11 @@ export type AddToCartInput = {
 export async function addToCartAction(input: AddToCartInput) {
   const user = await requireCurrentUser();
 
-  const product = await prisma.product.findUnique({ where: { id: input.productId } });
-  if (!product || !product.active) {
+  const product = await prisma.product.findUnique({
+    where: { id: input.productId },
+    include: { category: { select: { active: true } } },
+  });
+  if (!product || !product.active || !product.category.active) {
     throw new Error("Produk tidak ditemukan.");
   }
 

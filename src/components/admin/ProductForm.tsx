@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Icon } from "@/components/Icon";
 import type { ProductFormState } from "@/app/actions/admin/products-actions";
 
@@ -10,10 +11,12 @@ type OptionRow = { id: string; label: string; priceDelta: number };
 const INPUT_CLASS =
   "w-full rounded-lg border border-outline-variant px-3 py-2 font-body-sm text-body-sm";
 
+export type ProductCategoryOption = { id: string; name: string; active: boolean };
+
 export type ProductFormValues = {
   name: string;
   slug: string;
-  category: string;
+  categoryId: string;
   description: string;
   ingredients: string;
   image: string;
@@ -31,7 +34,7 @@ export type ProductFormValues = {
 const EMPTY_VALUES: ProductFormValues = {
   name: "",
   slug: "",
-  category: "",
+  categoryId: "",
   description: "",
   ingredients: "",
   image: "",
@@ -125,7 +128,7 @@ export function ProductForm({
 }: {
   mode: "create" | "edit";
   initialValues?: Partial<ProductFormValues>;
-  categories: string[];
+  categories: ProductCategoryOption[];
   action: (state: ProductFormState, formData: FormData) => Promise<ProductFormState>;
 }) {
   const [state, formAction, pending] = useActionState<ProductFormState, FormData>(
@@ -174,20 +177,30 @@ export function ProductForm({
             required
           />
         </Field>
-        <Field label="Kategori" error={fieldErrors.category}>
-          <input
-            name="category"
-            list="category-options"
-            value={values.category}
-            onChange={(e) => set("category", e.target.value)}
+        <Field label="Kategori" error={fieldErrors.categoryId}>
+          <select
+            name="categoryId"
+            value={values.categoryId}
+            onChange={(e) => set("categoryId", e.target.value)}
             className={INPUT_CLASS}
             required
-          />
-          <datalist id="category-options">
+          >
+            <option value="" disabled>
+              Pilih kategori
+            </option>
             {categories.map((c) => (
-              <option key={c} value={c} />
+              <option key={c.id} value={c.id}>
+                {c.name}
+                {!c.active && " (disembunyikan)"}
+              </option>
             ))}
-          </datalist>
+          </select>
+          <Link
+            href="/admin/categories"
+            className="w-fit font-label-sm text-label-sm text-primary hover:underline"
+          >
+            Kelola kategori →
+          </Link>
         </Field>
         <Field label="Tag Badge (opsional)" error={fieldErrors.tag}>
           <input

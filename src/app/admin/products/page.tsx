@@ -4,18 +4,20 @@ import { Icon } from "@/components/Icon";
 import { ProductsTable } from "@/components/admin/ProductsTable";
 
 export default async function AdminProductsPage() {
-  const products = await prisma.product.findMany({
-    orderBy: [{ active: "desc" }, { createdAt: "desc" }],
-    select: {
-      id: true,
-      slug: true,
-      name: true,
-      category: true,
-      image: true,
-      basePrice: true,
-      active: true,
-    },
-  });
+  const products = await prisma.product
+    .findMany({
+      orderBy: [{ active: "desc" }, { createdAt: "desc" }],
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        category: { select: { name: true } },
+        image: true,
+        basePrice: true,
+        active: true,
+      },
+    })
+    .then((rows) => rows.map((p) => ({ ...p, category: p.category.name })));
 
   return (
     <div className="flex flex-col gap-space-lg">
