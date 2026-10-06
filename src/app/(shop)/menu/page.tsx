@@ -5,6 +5,7 @@ import { MenuBrowser } from "@/components/menu/MenuBrowser";
 import { getCurrentUser } from "@/lib/current-user";
 import { getTierConfigMap } from "@/lib/tier-config.server";
 import { Icon } from "@/components/Icon";
+import { ClaimBonusButton } from "@/components/loyalty/ClaimBonusButton";
 
 // 085360564737 in international format (leading 0 → 62), as wa.me requires.
 const OPEN_PO_WHATSAPP_URL = `https://wa.me/6285360564737?text=${encodeURIComponent(
@@ -55,13 +56,22 @@ export default async function MenuPage() {
                 <Icon name="local_mall" className="!text-sm" />
                 <span>Pesan Sekarang</span>
               </a>
-              <Link
-                href={user ? "/loyalty" : "/signup"}
-                className="flex items-center gap-2 rounded-lg bg-secondary px-5 py-3 font-label-lg text-label-lg text-white shadow-sm transition-all hover:bg-rose-700 active:scale-95"
-              >
-                <Icon name="redeem" filled className="!text-sm" />
-                <span>{user ? "Klaim Bonus Poin Member Baru" : "Daftar & Klaim Bonus Poin"}</span>
-              </Link>
+              {/* Members claim the one-time 50-point welcome bonus right here;
+                  guests are sent to sign up first. */}
+              {user ? (
+                <ClaimBonusButton
+                  claimed={user.bonusClaimed}
+                  buttonClassName="flex items-center gap-2 rounded-lg bg-secondary px-5 py-3 font-label-lg text-label-lg text-white shadow-sm transition-all hover:bg-rose-700 active:scale-95 disabled:opacity-60"
+                />
+              ) : (
+                <Link
+                  href="/signup"
+                  className="flex items-center gap-2 rounded-lg bg-secondary px-5 py-3 font-label-lg text-label-lg text-white shadow-sm transition-all hover:bg-rose-700 active:scale-95"
+                >
+                  <Icon name="redeem" filled className="!text-sm" />
+                  <span>Daftar & Klaim Bonus 50 Poin</span>
+                </Link>
+              )}
             </div>
           </div>
 

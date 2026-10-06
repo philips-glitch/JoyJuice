@@ -5,7 +5,16 @@ import { useRouter } from "next/navigation";
 import { claimSignupBonusAction } from "@/app/actions/loyalty-actions";
 import { Icon } from "@/components/Icon";
 
-export function ClaimBonusButton({ claimed }: { claimed: boolean }) {
+const DEFAULT_BUTTON_CLASS =
+  "jj-btn-primary flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-60";
+
+export function ClaimBonusButton({
+  claimed,
+  buttonClassName = DEFAULT_BUTTON_CLASS,
+}: {
+  claimed: boolean;
+  buttonClassName?: string;
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +44,7 @@ export function ClaimBonusButton({ claimed }: { claimed: boolean }) {
             }
           })
         }
-        className="jj-btn-primary flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+        className={buttonClassName}
       >
         {pending ? (
           "Memproses..."
