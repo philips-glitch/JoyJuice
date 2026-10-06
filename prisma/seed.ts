@@ -176,7 +176,7 @@ const products = [
     category: "Seasonal Menu",
     description: "Mangga harum, ketan, santan kelapa",
     ingredients: "Mangga harum, ketan, santan kelapa",
-    image: "/products/mangga.jpg",
+    image: "/products/mango-sticky-rice.jpg",
     basePrice: 20_000,
     calories: 180,
     volumeMl: 250,
