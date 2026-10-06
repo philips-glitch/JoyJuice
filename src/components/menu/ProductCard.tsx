@@ -1,11 +1,7 @@
 "use client";
 
-import { useTransition } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { addToCartAction } from "@/app/actions/cart-actions";
 import { formatRupiah } from "@/lib/pricing";
-import { DEFAULT_ICE_LEVEL } from "@/lib/menu-options";
 import { Icon } from "@/components/Icon";
 import { ProductImage } from "@/components/ProductImage";
 import type { ProductWithOptions } from "@/lib/products";
@@ -30,23 +26,6 @@ export function ProductCard({
   isLoggedIn: boolean;
   onCustomize: () => void;
 }) {
-  const router = useRouter();
-  const [pending, startTransition] = useTransition();
-
-  function quickAdd() {
-    startTransition(async () => {
-      await addToCartAction({
-        productId: product.id,
-        quantity: 1,
-        sizeId: product.sizes[0]?.id ?? "reg",
-        iceLevel: DEFAULT_ICE_LEVEL,
-        sweetness: "pure",
-        toppingIds: [],
-      });
-      router.refresh();
-    });
-  }
-
   return (
     <article className="group flex flex-col overflow-hidden rounded-xl border border-outline-variant/70 bg-surface-container-lowest shadow-sm transition-all hover:shadow-md">
       <button
@@ -100,26 +79,14 @@ export function ProductCard({
               <span>Masuk untuk Pesan</span>
             </Link>
           ) : (
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={onCustomize}
-                aria-label={`Kustomisasi ${product.name}`}
-                title="Kustomisasi"
-                className="flex flex-shrink-0 items-center justify-center rounded-lg border border-primary/30 bg-surface-container-low p-2 text-primary transition-colors hover:bg-primary hover:text-on-primary active:scale-95"
-              >
-                <Icon name="tune" className="!text-sm" />
-              </button>
-              <button
-                type="button"
-                onClick={quickAdd}
-                disabled={pending}
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-primary px-2 py-2 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-container active:scale-95 disabled:opacity-50"
-              >
-                <Icon name="add_shopping_cart" className="!text-sm" />
-                <span>{pending ? "..." : "Tambah"}</span>
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={onCustomize}
+              className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-2 py-2 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-container active:scale-95"
+            >
+              <Icon name="add_shopping_cart" className="!text-sm" />
+              <span>Tambah</span>
+            </button>
           )}
         </div>
       </div>
