@@ -6,6 +6,11 @@ import { getCurrentUser } from "@/lib/current-user";
 import { getTierConfigMap } from "@/lib/tier-config.server";
 import { Icon } from "@/components/Icon";
 
+// 085360564737 in international format (leading 0 → 62), as wa.me requires.
+const OPEN_PO_WHATSAPP_URL = `https://wa.me/6285360564737?text=${encodeURIComponent(
+  "Halo Joy & Juice, saya mau Open PO.\nVarian: \nJumlah botol: \nTanggal kirim/ambil: ",
+)}`;
+
 export default async function MenuPage() {
   // Anyone can browse the menu — registration is only required to actually
   // transact (add to cart, checkout). getCurrentUser() returns null instead
@@ -152,6 +157,39 @@ export default async function MenuPage() {
 
       <section id="kategori">
         <MenuBrowser products={products} isLoggedIn={!!user} />
+      </section>
+
+      {/* OPEN PO — bulk / event / advance orders are handled by hand over WhatsApp */}
+      <section
+        id="open-po"
+        className="flex flex-col items-start gap-5 rounded-xl border border-emerald-200 bg-emerald-50 p-6 shadow-sm md:flex-row md:items-center md:justify-between md:p-8"
+      >
+        <div className="flex items-start gap-4">
+          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white">
+            <Icon name="event_available" filled />
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="w-fit rounded-full bg-emerald-600 px-3 py-0.5 font-label-sm text-label-sm font-bold uppercase tracking-wider text-white">
+              Open PO
+            </span>
+            <h2 className="font-headline-sm text-headline-sm text-emerald-950">
+              Pesan Jus untuk Acara, Kantor, atau Stok Mingguan
+            </h2>
+            <p className="max-w-2xl font-body-md text-body-md text-emerald-900/80">
+              Butuh banyak botol atau mau pesan dari jauh hari? Chat kami langsung via WhatsApp —
+              kami bantu atur varian, jumlah, dan jadwal pengirimannya.
+            </p>
+          </div>
+        </div>
+        <a
+          href={OPEN_PO_WHATSAPP_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex flex-shrink-0 items-center gap-2 rounded-lg bg-emerald-600 px-5 py-3 font-label-lg text-label-lg font-bold text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-95"
+        >
+          <Icon name="chat" filled className="!text-base" />
+          <span>Chat WhatsApp untuk PO</span>
+        </a>
       </section>
 
       {/* LOYALTY CLUB CALLOUT BANNER */}
