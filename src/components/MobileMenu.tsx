@@ -7,6 +7,7 @@ import { logoutAction } from "@/app/actions/auth-actions";
 
 const LINKS = [
   { href: "/menu", label: "Menu" },
+  { href: "/jadwal", label: "Jadwal Jus" },
   { href: "/loyalty", label: "Loyalty Portal" },
   { href: "/rewards", label: "Rewards" },
 ];

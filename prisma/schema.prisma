@@ -94,9 +94,32 @@ model Product {
   active      Boolean  @default(true)
   createdAt   DateTime @default(now())
 
-  category   Category   @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  cartItems  CartItem[]
-  orderItems OrderItem[]
+  category        Category        @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  cartItems       CartItem[]
+  orderItems      OrderItem[]
+  scheduleEntries ScheduleEntry[]
+}
+
+// Weekly juice production schedule ("Jadwal Jus") shown on /jadwal. It's a
+// repeating template, one row per ISO weekday (1 = Senin … 7 = Minggu), and
+// purely informational — it doesn't restrict what can be ordered.
+model ScheduleDay {
+  weekday   Int      @id
+  closed    Boolean  @default(false)
+  note      String?
+  updatedAt DateTime @updatedAt
+
+  entries ScheduleEntry[]
+}
+
+model ScheduleEntry {
+  weekday   Int
+  productId String
+
+  day     ScheduleDay @relation(fields: [weekday], references: [weekday], onDelete: Cascade)
+  product Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([weekday, productId])
 }
 
 // Menu categories shown as tabs on /menu. Hiding one (active = false) takes

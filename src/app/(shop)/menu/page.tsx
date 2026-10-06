@@ -6,6 +6,7 @@ import { getCurrentUser } from "@/lib/current-user";
 import { getTierConfigMap } from "@/lib/tier-config.server";
 import { Icon } from "@/components/Icon";
 import { ClaimBonusButton } from "@/components/loyalty/ClaimBonusButton";
+import { getWeeklySchedule, todayWeekday } from "@/lib/schedule";
 
 // 085360564737 in international format (leading 0 → 62), as wa.me requires.
 const OPEN_PO_WHATSAPP_URL = `https://wa.me/6285360564737?text=${encodeURIComponent(
@@ -17,7 +18,13 @@ export default async function MenuPage() {
   // transact (add to cart, checkout). getCurrentUser() returns null instead
   // of redirecting, so the hero banner below has an explicit guest state.
   const user = await getCurrentUser();
-  const [products, tierConfig] = await Promise.all([getActiveProducts(), getTierConfigMap()]);
+  const [products, tierConfig, schedule] = await Promise.all([
+    getActiveProducts(),
+    getTierConfigMap(),
+    getWeeklySchedule(),
+  ]);
+  const today = todayWeekday();
+  const todaySchedule = schedule.find((d) => d.weekday === today)!;
   const tier = user ? tierConfig[user.tier] : null;
 
   return (
@@ -164,6 +171,27 @@ export default async function MenuPage() {
           </div>
         </div>
       </section>
+
+      {/* TODAY'S PRODUCTION — teaser for the weekly schedule on /jadwal */}
+      {(todaySchedule.closed || todaySchedule.products.length > 0) && (
+        <Link
+          href="/jadwal"
+          className="flex flex-col gap-2 rounded-xl border border-outline-variant/70 bg-surface-container-lowest px-4 py-3 shadow-sm transition-colors hover:bg-surface-container-low sm:flex-row sm:items-center sm:justify-between"
+        >
+          <span className="flex items-start gap-2 font-body-md text-body-md text-on-surface">
+            <Icon name="calendar_month" className="text-primary" />
+            <span>
+              <strong>Dibuat hari ini ({todaySchedule.label}):</strong>{" "}
+              {todaySchedule.closed
+                ? "Libur — tidak ada produksi"
+                : todaySchedule.products.map((p) => p.name).join(", ")}
+            </span>
+          </span>
+          <span className="flex-shrink-0 font-label-lg text-label-lg font-bold text-primary">
+            Lihat jadwal minggu ini →
+          </span>
+        </Link>
+      )}
 
       <section id="kategori">
         <MenuBrowser products={products} isLoggedIn={!!user} />

@@ -25,9 +25,10 @@ export const authConfig = {
       // The storefront's menu is browsable by anyone — registration is only
       // required to actually transact (add to cart, checkout, etc.), which
       // is enforced by requireCurrentUser() in those server actions/pages,
-      // not here. Exact match only: "/" and "/menu" themselves, not every
-      // path that happens to start with "/".
-      const publicExactPaths = ["/", "/menu"];
+      // not here. The weekly juice schedule is informational, so it's public
+      // too. Exact match only: these paths themselves, not every path that
+      // happens to start with them.
+      const publicExactPaths = ["/", "/menu", "/jadwal"];
       if (publicExactPaths.includes(nextUrl.pathname)) return true;
 
       return isLoggedIn;

@@ -9,6 +9,7 @@ export const ADMIN_NAV_ITEMS = [
   { href: "/admin/orders", label: "Orders", icon: "receipt_long" },
   { href: "/admin/products", label: "Products", icon: "local_drink" },
   { href: "/admin/categories", label: "Categories", icon: "category" },
+  { href: "/admin/schedule", label: "Jadwal Jus", icon: "calendar_month" },
   { href: "/admin/customers", label: "Customers", icon: "group" },
   { href: "/admin/loyalty", label: "Loyalty", icon: "loyalty" },
   { href: "/admin/redemptions", label: "Klaim Reward", icon: "redeem" },
