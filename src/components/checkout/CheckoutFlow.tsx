@@ -28,7 +28,7 @@ import { Icon } from "@/components/Icon";
 import { ProductImage } from "@/components/ProductImage";
 import type { CheckoutCartItem } from "@/lib/checkout-types";
 
-type PaymentMethod = "QRIS" | "VIRTUAL_ACCOUNT" | "MANUAL_TRANSFER";
+type PaymentMethod = "QRIS" | "MANUAL_TRANSFER";
 
 const MAX_PROOF_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_PROOF_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -303,16 +303,9 @@ export function CheckoutFlow({
                     onSelect={() => setPaymentMethod("QRIS")}
                   />
                   <PaymentOption
-                    id="VIRTUAL_ACCOUNT"
-                    title="Transfer Virtual Account (BCA, Mandiri, BRI, BNI)"
-                    desc="Transfer lalu upload bukti transfer di bawah."
-                    selected={paymentMethod === "VIRTUAL_ACCOUNT"}
-                    onSelect={() => setPaymentMethod("VIRTUAL_ACCOUNT")}
-                  />
-                  <PaymentOption
                     id="MANUAL_TRANSFER"
-                    title="Transfer Bank Manual (PT Joy and Juice Indonesia)"
-                    desc="BCA 782-019-2811 a.n PT Joy and Juice Indonesia"
+                    title="Transfer Hana Bank"
+                    desc="a.n Rahel Audina Nainggolan. Minta nomor rekening via WhatsApp 0853-6056-4737, lalu upload bukti transfer di bawah."
                     selected={paymentMethod === "MANUAL_TRANSFER"}
                     onSelect={() => setPaymentMethod("MANUAL_TRANSFER")}
                   />

@@ -63,7 +63,9 @@ export async function placeOrderAction(
   if (!whatsapp) {
     return { error: "Nomor WhatsApp wajib diisi." };
   }
-  if (!["QRIS", "VIRTUAL_ACCOUNT", "MANUAL_TRANSFER"].includes(paymentMethod)) {
+  // Only QRIS and Hana Bank transfer are offered now. VIRTUAL_ACCOUNT stays in
+  // the enum so older orders keep their label, but new orders can't use it.
+  if (!["QRIS", "MANUAL_TRANSFER"].includes(paymentMethod)) {
     return { error: "Metode pembayaran tidak valid." };
   }
   if (!(proofFile instanceof File) || proofFile.size === 0) {
@@ -132,7 +134,7 @@ export async function placeOrderAction(
           address: null,
           whatsapp,
           driverNote: note || null,
-          paymentMethod: paymentMethod as "QRIS" | "VIRTUAL_ACCOUNT" | "MANUAL_TRANSFER",
+          paymentMethod: paymentMethod as "QRIS" | "MANUAL_TRANSFER",
           subtotal,
           memberDiscount,
           pointsRedeemed: pointsToRedeem,
