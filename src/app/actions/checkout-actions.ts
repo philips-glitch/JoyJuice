@@ -117,7 +117,10 @@ export async function placeOrderAction(
       access: "public",
     });
     proofUrl = blob.url;
-  } catch {
+  } catch (err) {
+    // Logged so the cause shows up in Vercel runtime logs — this failed
+    // silently in production for as long as no Blob store was connected.
+    console.error("Payment proof upload failed:", err);
     return { error: "Gagal mengupload bukti pembayaran. Silakan coba lagi." };
   }
 
