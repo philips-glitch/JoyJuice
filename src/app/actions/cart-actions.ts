@@ -22,8 +22,10 @@ export async function addToCartAction(input: AddToCartInput) {
     where: { id: input.productId },
     include: { category: { select: { active: true } } },
   });
+  // Returned rather than thrown: production builds replace thrown server
+  // action messages with a generic one, so the popup couldn't show this.
   if (!product || !product.active || !product.category.active) {
-    throw new Error("Produk tidak ditemukan.");
+    return { ok: false as const, error: "Produk ini sedang tidak tersedia." };
   }
 
   const unitPrice = computeUnitPrice({
@@ -50,7 +52,7 @@ export async function addToCartAction(input: AddToCartInput) {
 
   revalidatePath("/menu");
   revalidatePath("/checkout");
-  return { ok: true };
+  return { ok: true as const };
 }
 
 export async function updateCartItemQuantityAction(cartItemId: string, quantity: number) {

@@ -85,6 +85,7 @@ function CustomizeModalBody({
   const [note, setNote] = useState("");
   const [pending, startTransition] = useTransition();
   const [justAdded, setJustAdded] = useState(false);
+  const [error, setError] = useState<{ message: string; reload: boolean } | null>(null);
 
   const unitPrice = useMemo(() => {
     const sizeDelta = product.sizes.find((s) => s.id === sizeId)?.priceDelta ?? 0;
@@ -101,16 +102,31 @@ function CustomizeModalBody({
 
   function handleAdd() {
     setJustAdded(false);
+    setError(null);
     startTransition(async () => {
-      await addToCartAction({
-        productId: product.id,
-        quantity: 1,
-        sizeId,
-        iceLevel: DEFAULT_ICE_LEVEL,
-        sweetness,
-        toppingIds,
-        note,
-      });
+      try {
+        const result = await addToCartAction({
+          productId: product.id,
+          quantity: 1,
+          sizeId,
+          iceLevel: DEFAULT_ICE_LEVEL,
+          sweetness,
+          toppingIds,
+          note,
+        });
+        if (!result.ok) {
+          setError({ message: result.error, reload: false });
+          return;
+        }
+      } catch {
+        // Most often a tab left open across a deploy: the page still calls
+        // the previous build's server action, which no longer exists.
+        setError({
+          message: "Gagal menambahkan ke keranjang. Muat ulang halaman lalu coba lagi.",
+          reload: true,
+        });
+        return;
+      }
       setJustAdded(true);
       setNote("");
       setToppingIds([]);
@@ -272,6 +288,20 @@ function CustomizeModalBody({
                     : `Tambah ke Keranjang - ${formatRupiah(unitPrice)}`}
                 </span>
               </button>
+              {error && (
+                <div className="mt-2 flex flex-col items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-center font-body-sm text-body-sm text-red-700">
+                  <span>{error.message}</span>
+                  {error.reload && (
+                    <button
+                      type="button"
+                      onClick={() => window.location.reload()}
+                      className="font-label-md text-label-md font-bold underline"
+                    >
+                      Muat ulang halaman
+                    </button>
+                  )}
+                </div>
+              )}
               <p className="mt-2 text-center font-label-sm text-label-sm text-outline">
                 {justAdded
                   ? `✓ Ditambahkan! +${product.pointsBadge} poin akan masuk setelah pesanan selesai.`
